@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="222mm" height="230mm" viewBox="0 0 222 230">
+  <!-- Reference/clearance diagram, NOT a drill template — for exact hole positions/sizes to mark
+       and drill from, use pipedal-footswitch-drill-template.svg. This is a companion view.
+
+       WHAT THIS IS: the SAME lid layout as pipedal-footswitch-drill-template.svg, but flipped
+       front-to-back (turn the lid over like turning a page, hinged along its width) to show the
+       UNDERSIDE — the view from inside the box looking up at the lid, or equivalently what you'd
+       see if you flipped the actual drilled panel over.
+
+       FLIP CONVENTION: Y_new = 146 - Y_old. X is UNCHANGED — RESET is still drawn on the left,
+       TUNER/MUTE still on the right, same left-right sense as looking at the lid from outside/
+       above. Only front-and-back swap: the row nearest the TOP of this drawing is now SW4-6/
+       SNAPSHOT (was nearest the front/player edge), and RESET/TUNER-MUTE (was the back edge) is
+       now nearest the BOTTOM. If you wanted the OTHER flip (left-right mirrored instead), say so
+       and this gets redrawn with X mirrored instead of Y.
+
+       ADDED for this view, not on the drill template:
+       - Each footswitch's actual through-panel footprint as seen from inside: the ⌀12mm
+         body/thread (solid) plus a ⌀16mm nut+washer (dashed) — CONFIRMED from the actual A-1874
+         datasheet (SF12N-0202-20R-M, fetched 2026-09-12): plain/20-tooth washer ⌀16mm OD, hex nut
+         14mm across-flats. PA66 (plastic) washer is bigger, ⌀18.8mm — check which one shipped
+         with your order if you want the exact figure for that specific washer.
+       - Not shown here (it's on the OUTSIDE face, not visible from inside): the switch also has a
+         13.4x12.1mm square anti-rotation bezel on the front — see
+         pipedal-footswitch-drill-template.svg and pipedal-hardware-v2.md §2.1 for that one.
+       - The USB coupler's footprint, projected from the back wall (a DIFFERENT panel) onto this
+         same X-Y floor plan, showing how far its 28.6mm body protrudes into the box interior.
+         This is valid to overlay here because a floor-plan view legitimately shows footprints at
+         different heights (Z) in the same X-Y frame — the coupler sits at Z=12-43mm from the
+         floor, the lid's switches hang from Z=35-64mm; see
+         pipedal-footswitch-internal-elevation.svg for the height picture. Because this view keeps
+         real X (unlike that elevation), it shows their TRUE non-overlap: no X mirroring/collapsing
+         needed here, so what's drawn separate really is separate. -->
+
+  <style>
+    text { font-family: sans-serif; }
+    .hole { fill: none; stroke: black; stroke-width: 0.3; }
+    .washer { fill: none; stroke: black; stroke-width: 0.25; stroke-dasharray: 1,0.6; }
+    .ghost { fill: none; stroke: black; stroke-width: 0.3; stroke-dasharray: 1.2,0.8; }
+    .panel { fill: none; stroke: black; stroke-width: 0.5; }
+    .dim { stroke: black; stroke-width: 0.15; }
+    .dimtext { font-size: 3.2px; fill: black; }
+    .label { font-size: 3px; fill: black; }
+    .note { font-size: 3px; fill: black; }
+    .bg { fill: white; }
+    .bannerhdr { font-size: 3.4px; font-weight: bold; fill: black; }
+    .legend text { font-size: 3px; fill: black; }
+    .legend .hdr { font-size: 3.2px; font-weight: bold; }
+  </style>
+
+  <!-- ============ Banner ============ -->
+  <rect x="0" y="0" width="222" height="24" fill="none" stroke="black" stroke-width="0.5"/>
+  <text class="bannerhdr" x="3" y="5">UNDERSIDE VIEW — lid flipped front-to-back, not left-right:</text>
+  <text class="note" x="3" y="9.5">X (left-right) is unchanged from the outside view — RESET still on the left, TUNER/MUTE still on the</text>
+  <text class="note" x="3" y="13.5">right. Only front/back swapped: SW4-6/SNAPSHOT are now near the top, RESET/TUNER-MUTE near the bottom.</text>
+  <text class="note" x="3" y="17.5">Not a drill template — see pipedal-footswitch-drill-template.svg for exact hole positions/sizes.</text>
+  <text class="note" x="3" y="21.5">Dashed circles/rectangles here are added clearance detail (body/washer size, USB coupler footprint).</text>
+
+  <!-- ============ Panel outline: TOP edge = front/player edge, BOTTOM edge = back wall ============ -->
+  <rect class="panel" x="0" y="26" width="222" height="146"/>
+  <text class="label" x="111" y="185" text-anchor="middle">TOP of this drawing = front/player edge</text>
+  <text class="label" x="111" y="176" text-anchor="middle">BOTTOM edge = back wall (RESET/TUNER-MUTE row, and the USB coupler footprint below)</text>
+
+  <!-- ============ RESET / TUNER-MUTE, Y=157 (was Y=15, near the back). Corner-post fix
+       2026-09-12: RESET moved 20->22 (small-post corner), TUNER/MUTE moved 202->198 (big-post
+       corner) — see pipedal-hardware-v2.md §2.1. ============ -->
+  <circle class="hole" cx="22" cy="157" r="6"/>
+  <circle class="washer" cx="22" cy="157" r="8"/>
+  <text class="label" x="22" y="149" text-anchor="middle">RESET</text>
+  <circle class="hole" cx="198" cy="157" r="6"/>
+  <circle class="washer" cx="198" cy="157" r="8"/>
+  <text class="label" x="198" y="149" text-anchor="middle">TUNER/MUTE</text>
+
+  <!-- body/washer callout, shown once -->
+  <g class="dim">
+    <line x1="22" y1="163" x2="22" y2="166"/>
+    <line x1="30" y1="163" x2="30" y2="166"/>
+    <line x1="22" y1="164.5" x2="30" y2="164.5"/>
+  </g>
+  <text class="label" x="26" y="167" text-anchor="middle">⌀16 nut/washer</text>
+  <text class="label" x="26" y="170.5" text-anchor="middle">(dashed), ⌀12 body (solid)</text>
+
+  <!-- ============ Encoder, Y=120 (was Y=52) ============ -->
+  <circle class="hole" cx="55" cy="120" r="3.55"/>
+  <text class="label" x="55" y="115" text-anchor="middle">ENCODER</text>
+
+  <!-- ============ OLED, Y range 105-135 (was 37-67) ============ -->
+  <rect class="hole" x="82" y="105" width="58" height="30"/>
+  <text class="label" x="111" y="122" text-anchor="middle">OLED cutout</text>
+  <circle class="hole" cx="77" cy="139.4" r="1.5"/>
+  <circle class="hole" cx="145" cy="139.4" r="1.5"/>
+  <circle class="hole" cx="77" cy="100.6" r="1.5"/>
+  <circle class="hole" cx="145" cy="100.6" r="1.5"/>
+
+  <!-- ============ Row A: SW1/2/3, PRESET, PRESET LED — Y=84 (was Y=88, near-center) ============ -->
+  <circle class="hole" cx="28.5" cy="84" r="6"/>
+  <circle class="washer" cx="28.5" cy="84" r="8"/>
+  <text class="label" x="28.5" y="76" text-anchor="middle">SW1</text>
+  <circle class="hole" cx="83.5" cy="84" r="6"/>
+  <circle class="washer" cx="83.5" cy="84" r="8"/>
+  <text class="label" x="83.5" y="76" text-anchor="middle">SW2</text>
+  <circle class="hole" cx="138.5" cy="84" r="6"/>
+  <circle class="washer" cx="138.5" cy="84" r="8"/>
+  <text class="label" x="138.5" y="76" text-anchor="middle">SW3</text>
+  <circle class="hole" cx="177" cy="84" r="2.5"/>
+  <text class="label" x="177" y="76" text-anchor="middle">LED</text>
+  <circle class="hole" cx="193.5" cy="84" r="6"/>
+  <circle class="washer" cx="193.5" cy="84" r="8"/>
+  <text class="label" x="193.5" y="76" text-anchor="middle">PRESET</text>
+
+  <!-- ============ Row B: SW4/5/6, SNAPSHOT, SNAPSHOT LED — Y=44 (was Y=128, near the front) ============ -->
+  <circle class="hole" cx="28.5" cy="44" r="6"/>
+  <circle class="washer" cx="28.5" cy="44" r="8"/>
+  <text class="label" x="28.5" y="36" text-anchor="middle">SW4</text>
+  <circle class="hole" cx="83.5" cy="44" r="6"/>
+  <circle class="washer" cx="83.5" cy="44" r="8"/>
+  <text class="label" x="83.5" y="36" text-anchor="middle">SW5</text>
+  <circle class="hole" cx="138.5" cy="44" r="6"/>
+  <circle class="washer" cx="138.5" cy="44" r="8"/>
+  <text class="label" x="138.5" y="36" text-anchor="middle">SW6</text>
+  <circle class="hole" cx="177" cy="44" r="2.5"/>
+  <text class="label" x="177" y="36" text-anchor="middle">LED</text>
+  <circle class="hole" cx="193.5" cy="44" r="6"/>
+  <circle class="washer" cx="193.5" cy="44" r="8"/>
+  <text class="label" x="193.5" y="36" text-anchor="middle">SNAPSHOT</text>
+
+  <!-- ============ USB coupler footprint, projected from the back wall — Y 143.4-172 (0-28.6mm
+       of protrusion), X 157-183 (its 26mm flange width) ============ -->
+  <rect class="ghost" x="157" y="143.4" width="26" height="28.6"/>
+  <circle class="ghost" cx="170" cy="157.7" r="11.85"/>
+  <g class="dim">
+    <line x1="186" y1="143.4" x2="189" y2="143.4"/>
+    <line x1="186" y1="172" x2="189" y2="172"/>
+    <line x1="187.5" y1="143.4" x2="187.5" y2="172"/>
+  </g>
+  <text class="dimtext" x="191" y="159" transform="rotate(-90 191 159)" text-anchor="middle">28.6mm</text>
+  <text class="label" x="170" y="140" text-anchor="middle">USB coupler (back wall)</text>
+
+  <!-- ============ Calibration bar ============ -->
+  <line x1="15" y1="200" x2="65" y2="200" stroke="black" stroke-width="0.5"/>
+  <line x1="15" y1="197" x2="15" y2="203" stroke="black" stroke-width="0.5"/>
+  <line x1="65" y1="197" x2="65" y2="203" stroke="black" stroke-width="0.5"/>
+  <text class="note" x="40" y="207" text-anchor="middle">50mm — measure this line if you print to scale</text>
+
+  <!-- ============ Legend ============ -->
+  <g class="legend">
+    <rect x="0" y="212" width="222" height="18" fill="none" stroke="black" stroke-width="0.5"/>
+    <text class="hdr" x="3" y="217">Reference (not measured — see pipedal-hardware-v2.md §2.1/§2.3/§2.3a and the build guide)</text>
+    <text x="3" y="222">Footswitch body/thread ⌀12mm (solid, matches the drilled hole); nut+washer ⌀16mm (dashed) — confirmed from</text>
+    <text x="3" y="226">the A-1874 datasheet (plain/20-tooth washer). PA66 washer option is bigger, ⌀18.8mm. USB coupler protrudes 28.6mm.</text>
+  </g>
+</svg>

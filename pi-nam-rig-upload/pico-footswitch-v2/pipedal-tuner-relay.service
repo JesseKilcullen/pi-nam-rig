@@ -1,0 +1,21 @@
+[Unit]
+Description=PiPedal tuner/preset-name relay to the Pico footswitch OLED
+After=pipedald.service
+Wants=pipedald.service
+
+[Service]
+Type=simple
+# EDIT before installing:
+#   - <your-username> in the path below
+#   - --midi-port value to match `python3 pi_relay.py --list` on this Pi
+#     (the Pico's ALSA MIDI device name, once it's plugged in)
+ExecStart=/usr/bin/python3 /home/<your-username>/pico-footswitch-v2/pi_relay.py --midi-port "Pico" --host localhost
+# always, not on-failure: when pipedald restarts (e.g. the hotspot switching on
+# as Ethernet is unplugged) it closes the websocket cleanly, pi_relay.py exits
+# with status 0, and on-failure would leave the relay dead until a reboot.
+Restart=always
+RestartSec=5
+User=<your-username>
+
+[Install]
+WantedBy=multi-user.target

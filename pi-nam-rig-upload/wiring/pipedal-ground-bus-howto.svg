@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -15 480 260" font-family="Arial, sans-serif">
+
+  <text x="230" y="-4" text-anchor="middle" font-size="9" font-weight="bold">Building the ground bus — twist-and-solder method</text>
+
+  <!-- ===================== STEP 1: strip + gather ===================== -->
+  <text x="55" y="15" text-anchor="middle" font-size="6" font-weight="bold">1. Strip &amp; gather</text>
+  <g stroke="#333" stroke-width="1" fill="none">
+    <line x1="10" y1="30" x2="55" y2="65"/>
+    <line x1="10" y1="45" x2="55" y2="65"/>
+    <line x1="10" y1="60" x2="55" y2="65"/>
+    <line x1="10" y1="75" x2="55" y2="65"/>
+    <line x1="10" y1="90" x2="55" y2="65"/>
+    <line x1="10" y1="105" x2="55" y2="65"/>
+  </g>
+  <!-- stripped bare-copper tips (orange) -->
+  <g stroke="#c8792a" stroke-width="1.6">
+    <line x1="10" y1="30" x2="20" y2="37"/>
+    <line x1="10" y1="45" x2="20" y2="49"/>
+    <line x1="10" y1="60" x2="20" y2="61.5"/>
+    <line x1="10" y1="75" x2="20" y2="73.5"/>
+    <line x1="10" y1="90" x2="20" y2="86"/>
+    <line x1="10" y1="105" x2="20" y2="98"/>
+  </g>
+  <text x="8" y="26" font-size="4" fill="#666">SW1 GND</text>
+  <text x="8" y="113" font-size="4" fill="#666">...+ 8 more, LEDs,</text>
+  <text x="8" y="118" font-size="4" fill="#666">encoder, → Pico GND</text>
+  <text x="55" y="120" text-anchor="middle" font-size="4.2" fill="#666">strip ~8-10mm off each end,</text>
+  <text x="55" y="125" text-anchor="middle" font-size="4.2" fill="#666">bring them all to one point</text>
+
+  <line x1="108" y1="65" x2="128" y2="65" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===================== STEP 2: twist ===================== -->
+  <text x="165" y="15" text-anchor="middle" font-size="6" font-weight="bold">2. Twist tightly</text>
+  <g stroke="#c8792a" stroke-width="2" fill="none">
+    <path d="M 135 65 Q 145 55 150 65 T 160 65 T 170 65 T 180 65 T 190 65"/>
+    <path d="M 135 65 Q 145 75 150 65 T 160 65 T 170 65 T 180 65 T 190 65" opacity="0.5"/>
+  </g>
+  <text x="162" y="90" text-anchor="middle" font-size="4.2" fill="#666">twist into one solid,</text>
+  <text x="162" y="95" text-anchor="middle" font-size="4.2" fill="#666">compact bundle by hand —</text>
+  <text x="162" y="100" text-anchor="middle" font-size="4.2" fill="#666">like a wire-nut splice</text>
+  <text x="162" y="45" text-anchor="middle" font-size="4" fill="#c0392b" font-weight="bold">⚠ slide heat-shrink onto ONE</text>
+  <text x="162" y="50" text-anchor="middle" font-size="4" fill="#c0392b" font-weight="bold">wire NOW — can't add it after</text>
+
+  <line x1="200" y1="65" x2="220" y2="65" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===================== STEP 3: solder ===================== -->
+  <text x="255" y="15" text-anchor="middle" font-size="6" font-weight="bold">3. Solder the joint</text>
+  <ellipse cx="255" cy="65" rx="22" ry="9" fill="#999" stroke="#555" stroke-width="1"/>
+  <g stroke="#c8792a" stroke-width="2" fill="none" opacity="0.6">
+    <path d="M 225 65 Q 235 58 240 65"/>
+  </g>
+  <text x="255" y="67" text-anchor="middle" font-size="4" fill="#fff" font-weight="bold">solder</text>
+  <text x="255" y="90" text-anchor="middle" font-size="4.2" fill="#666">heat the twist, feed solder IN</text>
+  <text x="255" y="95" text-anchor="middle" font-size="4.2" fill="#666">so it flows through — not just</text>
+  <text x="255" y="100" text-anchor="middle" font-size="4.2" fill="#666">a blob on the outside</text>
+
+  <line x1="280" y1="65" x2="300" y2="65" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===================== STEP 4: heat-shrink ===================== -->
+  <text x="335" y="15" text-anchor="middle" font-size="6" font-weight="bold">4. Insulate</text>
+  <rect x="313" y="56" width="44" height="18" rx="9" fill="#1a6ec1" opacity="0.25" stroke="#1a6ec1" stroke-width="1"/>
+  <ellipse cx="335" cy="65" rx="22" ry="9" fill="#999" stroke="#555" stroke-width="1" opacity="0.4"/>
+  <text x="335" y="67" text-anchor="middle" font-size="4" fill="#1a6ec1" font-weight="bold">heat-shrink</text>
+  <text x="335" y="90" text-anchor="middle" font-size="4.2" fill="#666">slide the pre-loaded tubing</text>
+  <text x="335" y="95" text-anchor="middle" font-size="4.2" fill="#666">over the joint, shrink with</text>
+  <text x="335" y="100" text-anchor="middle" font-size="4.2" fill="#666">heat gun/lighter — this is what</text>
+  <text x="335" y="105" text-anchor="middle" font-size="4.2" fill="#666">stops it shorting to the case</text>
+
+  <line x1="380" y1="65" x2="400" y2="65" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===================== STEP 5: result ===================== -->
+  <text x="440" y="15" text-anchor="middle" font-size="6" font-weight="bold">5. Done</text>
+  <rect x="410" y="58" width="60" height="14" rx="7" fill="#1a6ec1" opacity="0.3" stroke="#1a6ec1" stroke-width="1"/>
+  <text x="440" y="67" text-anchor="middle" font-size="4.2" font-weight="bold">GROUND BUS</text>
+  <line x1="470" y1="65" x2="475" y2="65" stroke="#000" stroke-width="1"/>
+  <text x="440" y="90" text-anchor="middle" font-size="4.2" fill="#666">1 wire out to Pico GND —</text>
+  <text x="440" y="95" text-anchor="middle" font-size="4.2" fill="#666">never wire multiple grounds</text>
+  <text x="440" y="100" text-anchor="middle" font-size="4.2" fill="#666">straight onto the Pico's pad</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <!-- ===================== ALTERNATIVE: terminal strip ===================== -->
+  <line x1="0" y1="150" x2="470" y2="150" stroke="#999" stroke-width="0.5"/>
+  <text x="0" y="163" font-size="6" font-weight="bold">Alternative: screw terminal strip (no soldering, easier to modify later)</text>
+
+  <rect x="0" y="172" width="140" height="30" fill="#fbfbfb" stroke="#000" stroke-width="1"/>
+  <g stroke="#000" stroke-width="0.6">
+    <line x1="14" y1="172" x2="14" y2="202"/>
+    <line x1="28" y1="172" x2="28" y2="202"/>
+    <line x1="42" y1="172" x2="42" y2="202"/>
+    <line x1="56" y1="172" x2="56" y2="202"/>
+    <line x1="70" y1="172" x2="70" y2="202"/>
+    <line x1="84" y1="172" x2="84" y2="202"/>
+    <line x1="98" y1="172" x2="98" y2="202"/>
+    <line x1="112" y1="172" x2="112" y2="202"/>
+    <line x1="126" y1="172" x2="126" y2="202"/>
+  </g>
+  <g fill="none" stroke="#333" stroke-width="0.8">
+    <circle cx="7" cy="187" r="2"/>
+    <circle cx="21" cy="187" r="2"/>
+    <circle cx="35" cy="187" r="2"/>
+    <circle cx="49" cy="187" r="2"/>
+    <circle cx="63" cy="187" r="2"/>
+    <circle cx="77" cy="187" r="2"/>
+    <circle cx="91" cy="187" r="2"/>
+    <circle cx="105" cy="187" r="2"/>
+    <circle cx="119" cy="187" r="2"/>
+    <circle cx="133" cy="187" r="2"/>
+  </g>
+  <text x="70" y="209" text-anchor="middle" font-size="4.2" fill="#666">14 ground wires, each screwed into its own terminal</text>
+
+  <line x1="145" y1="187" x2="165" y2="187" stroke="#000" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="180" y="185" font-size="4.2" fill="#666">1 more terminal,</text>
+  <text x="180" y="190" font-size="4.2" fill="#666">wired onward to</text>
+  <text x="180" y="195" font-size="4.2" font-weight="bold">Pico GND</text>
+
+  <text x="0" y="222" font-size="4" fill="#666">Either method: build it before soldering switches, add each ground wire in as you wire that switch — easier than retrofitting 10+ wires after the fact.</text>
+  <text x="0" y="228" font-size="4" fill="#666">Full context: pipedal-footswitch-wiring-reference.md ("Ground bus" section) and pipedal-footswitch-wiring-procedure.md step 2.</text>
+
+</svg>

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="222mm" height="80mm" viewBox="0 0 222 80">
+  <!-- Mirrored X vs the lid (page position = 222 - true X) — this is a standalone sheet, viewed
+       from OUTSIDE the enclosure standing behind it, which faces the opposite direction to the
+       lid's own front-facing convention. See pipedal-hardware-v2.md §2.3a. Labels still cite true
+       X values (connector is still "X=170"). -->
+  <style>
+    text { font-family: sans-serif; }
+    .hole { fill: none; stroke: black; stroke-width: 0.3; }
+    .panel { fill: none; stroke: black; stroke-width: 0.5; }
+    .dim { stroke: black; stroke-width: 0.15; }
+    .dimtext { font-size: 3.2px; fill: black; }
+    .label { font-size: 3px; fill: black; }
+    .note { font-size: 3px; fill: black; }
+    .bg { fill: white; }
+    .punch { fill: black; }
+  </style>
+
+  <rect class="panel" x="0" y="0" width="222" height="55"/>
+
+  <line class="dim" x1="52" y1="0" x2="52" y2="55" stroke-dasharray="1,1"/>
+  <line class="dim" x1="0" y1="27.5" x2="222" y2="27.5" stroke-dasharray="1,1"/>
+
+  <circle class="hole" cx="52" cy="27.5" r="11.85"/>
+  <circle class="punch" cx="52" cy="27.5" r="0.4"/>
+  <text class="label" x="52" y="10" text-anchor="middle">USB coupler bore ⌀23.7 (true X=170)</text>
+
+  <rect class="hole" x="39" y="12" width="26" height="31" stroke-dasharray="0.6,0.6"/>
+  <text class="label" x="83" y="27.5" text-anchor="start">flange 26x31 (ref only,</text>
+  <text class="label" x="83" y="31" text-anchor="start">not a cut line)</text>
+
+  <circle class="hole" cx="42.5" cy="15.5" r="1.7"/>
+  <circle class="punch" cx="42.5" cy="15.5" r="0.4"/>
+  <circle class="hole" cx="61.5" cy="39.5" r="1.7"/>
+  <circle class="punch" cx="61.5" cy="39.5" r="0.4"/>
+  <text class="label" x="42.5" y="12.5" text-anchor="middle">⌀3.4</text>
+  <text class="label" x="61.5" y="44" text-anchor="middle">⌀3.4</text>
+
+  <g class="dim">
+    <line x1="61.5" y1="44" x2="61.5" y2="47"/>
+    <line x1="42.5" y1="44" x2="42.5" y2="47"/>
+    <line x1="42.5" y1="45.5" x2="61.5" y2="45.5"/>
+  </g>
+  <rect class="bg" x="43" y="44" width="18" height="3.4"/>
+  <text class="dimtext" x="52" y="46.7" text-anchor="middle">19.0</text>
+
+  <g class="dim">
+    <line x1="35" y1="15.5" x2="32" y2="15.5"/>
+    <line x1="35" y1="39.5" x2="32" y2="39.5"/>
+    <line x1="33.5" y1="15.5" x2="33.5" y2="39.5"/>
+  </g>
+  <text class="dimtext" x="31" y="28.5" text-anchor="end">24.0</text>
+
+  <g class="dim">
+    <line x1="218" y1="5" x2="52" y2="5"/>
+    <line x1="218" y1="3" x2="218" y2="7"/>
+    <line x1="52" y1="3" x2="52" y2="7"/>
+  </g>
+  <rect class="bg" x="129" y="3.3" width="16" height="3.4"/>
+  <text class="dimtext" x="137" y="6" text-anchor="middle">170.0</text>
+
+  <g class="dim">
+    <line x1="10" y1="0" x2="10" y2="27.5"/>
+    <line x1="8" y1="0" x2="12" y2="0"/>
+    <line x1="8" y1="27.5" x2="12" y2="27.5"/>
+  </g>
+  <rect class="bg" x="4.5" y="12" width="11" height="3.4"/>
+  <text class="dimtext" x="10" y="14.7" text-anchor="middle">27.5</text>
+
+  <!-- ============ Calibration bar ============ -->
+  <line x1="20" y1="65" x2="70" y2="65" stroke="black" stroke-width="0.5"/>
+  <line x1="20" y1="62" x2="20" y2="68" stroke="black" stroke-width="0.5"/>
+  <line x1="70" y1="62" x2="70" y2="68" stroke="black" stroke-width="0.5"/>
+  <text class="note" x="45" y="73" text-anchor="middle">50mm</text>
+</svg>

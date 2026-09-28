@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220mm" height="246mm" viewBox="0 0 220 246">
+  <!-- Reference/clearance diagram, NOT a drill template (no holes marked here).
+
+       WHAT THIS IS: a side (Y-Z) elevation of the footswitch box interior — imagine slicing the
+       box lengthwise and lifting the near side wall off, looking at the back wall from the side.
+       Y = front-to-back (0 = back wall, 146 = front/player edge), same axis as
+       pipedal-hardware-v2.md §2.1. Z = height (0 = floor, 55 = underside of the lid, nominal
+       HB5050 interior height). Formula used throughout: Y_svg = 15 + Y_phys(mm), Z_svg = 95 - Z_phys(mm).
+
+       COMPOSITE VIEW, NOT ONE TRUE SLICE: every shape is drawn at its real Y and Z position, but
+       shapes here can sit at DIFFERENT X (left-right) positions on the real panel — see the
+       drill templates for actual X. OLED, Pico, USB coupler, and one representative footswitch
+       (solid) are drawn to keep this readable; all ten footswitches share the identical stack
+       shown on that one switch, just at different Y (and X). RESET/TUNER-MUTE is additionally
+       drawn as a dashed/pale "ghost" outline, deliberately overlapping the USB coupler, to make
+       the point explicit: they share Y but are 150mm+ apart in X, so this is NOT a real collision
+       — see the callout arrow and notes below. -->
+
+
+       Sources: pipedal-hardware-v2.md §2.3 (footswitch/OLED/Pico depths) and §2.3a (USB coupler).
+       All of §2.3's own heights are themselves datasheet estimates, not a physical dry-fit. -->
+
+  <style>
+    text { font-family: sans-serif; }
+    .hole { fill: none; stroke: black; stroke-width: 0.3; }
+    .part { fill: #eeeeee; stroke: black; stroke-width: 0.3; }
+    .ghost { fill: white; fill-opacity: 0.55; stroke: black; stroke-width: 0.3; stroke-dasharray: 1,0.8; }
+    .wall { fill: #cccccc; stroke: black; stroke-width: 0.3; }
+    .dim { stroke: black; stroke-width: 0.15; }
+    .dimtext { font-size: 3.2px; fill: black; }
+    .label { font-size: 3px; fill: black; }
+    .note { font-size: 3px; fill: black; }
+    .bannerhdr { font-size: 3.4px; font-weight: bold; fill: black; }
+    .legend text { font-size: 3px; fill: black; }
+    .legend .hdr { font-size: 3.2px; font-weight: bold; }
+  </style>
+
+  <!-- ============ Banner ============ -->
+  <rect x="0" y="0" width="220" height="22" fill="none" stroke="black" stroke-width="0.5"/>
+  <text class="bannerhdr" x="3" y="5">READ FIRST — this is a composite view, not one physical slice:</text>
+  <text class="note" x="3" y="9.5">Every shape is drawn at its real front-to-back (Y) and height (Z) position, but shapes here can sit at</text>
+  <text class="note" x="3" y="13.5">different left-right (X) positions on the real panel (see the drill templates for X). Shapes that look</text>
+  <text class="note" x="3" y="17.5">close together here are called out in the notes below if that matters — see there before worrying.</text>
+
+  <!-- ============ Structure: floor, lid, back wall, front wall ============ -->
+  <rect class="wall" x="12" y="95" width="152" height="3"/>
+  <text class="label" x="6" y="97" text-anchor="end">floor</text>
+
+  <rect class="wall" x="12" y="37" width="152" height="3"/>
+  <text class="label" x="6" y="39.5" text-anchor="end">lid</text>
+
+  <rect class="wall" x="12" y="37" width="3" height="61"/>
+  <text class="label" x="9" y="35" text-anchor="middle">back wall</text>
+
+  <rect class="wall" x="161" y="37" width="3" height="61"/>
+  <text class="label" x="167" y="35" text-anchor="middle">front wall</text>
+
+  <rect class="hole" x="15" y="40" width="146" height="55"/>
+
+  <!-- ============ Z=35 reference line (35mm clear interior height starts here) ============ -->
+  <line class="dim" x1="15" y1="60" x2="161" y2="60" stroke-dasharray="2,1"/>
+  <text class="note" x="163" y="61">35mm clear height</text>
+
+  <!-- ============ USB coupler, Y=0-28.6 -> X_svg 15-43.6, Z43-12 -> Y_svg 52-83 ============ -->
+  <rect class="part" x="15" y="52" width="28.6" height="31"/>
+  <circle class="hole" cx="29.3" cy="67.5" r="11.85"/>
+  <text class="label" x="29.3" y="70" text-anchor="middle">USB coupler</text>
+
+  <!-- ============ RESET/TUNER-MUTE, Y=15 -> X_svg=30, profile 24-36, drawn as a "ghost" outline
+       deliberately overlapping the coupler above to make the Y-only-overlap point visible rather
+       than just described in text — see the callout arrow and notes below. ============ -->
+  <rect class="ghost" x="26" y="31" width="8" height="9"/>
+  <rect class="ghost" x="24" y="40" width="12" height="3"/>
+  <rect class="ghost" x="25" y="43" width="10" height="13"/>
+  <rect class="ghost" x="27" y="56" width="6" height="4"/>
+  <text class="label" x="30" y="27" text-anchor="middle">RESET/TUNER-MUTE (Y=15)</text>
+
+  <!-- callout: this overlap with the coupler is Y-only, not a real collision. RESET (X=22) is
+       far from the coupler (X=170); TUNER/MUTE (X=198) is much closer (~28mm) but still clears —
+       see the lid/backwall templates for the actual ~8-9mm edge clearance, checked there in X-Y,
+       not derivable from this Y-Z view alone. -->
+  <text class="note" x="30" y="100" text-anchor="middle">↑ overlaps coupler in Y only —</text>
+  <text class="note" x="30" y="104" text-anchor="middle">see lid/backwall SVGs for X (§2.1)</text>
+
+  <!-- ============ OLED, Y=30.5-73.5 -> X_svg 45.5-88.5, Z55-42 -> Y_svg 40-53 ============ -->
+  <rect class="part" x="45.5" y="40" width="43" height="13"/>
+  <line class="dim" x1="45.5" y1="48" x2="88.5" y2="48" stroke-dasharray="1,1"/>
+  <text class="label" x="67" y="34" text-anchor="middle">OLED (8-13mm)</text>
+
+  <!-- gap dimension: OLED right edge (88.5) to SW row A left edge (97) = 8.5mm -->
+  <g class="dim">
+    <line x1="88.5" y1="66" x2="88.5" y2="69"/>
+    <line x1="97" y1="66" x2="97" y2="69"/>
+    <line x1="88.5" y1="67.5" x2="97" y2="67.5"/>
+  </g>
+  <text class="dimtext" x="92.75" y="73" text-anchor="middle">8.5</text>
+
+  <!-- ============ Pico, placed under the OLED's Y-range (near it, per §4/§8) ============ -->
+  <!-- Y=35-56 -> X_svg 50-71, Z0-15 -> Y_svg 80-95 -->
+  <rect class="part" x="50" y="80" width="21" height="15" fill="#dddddd"/>
+  <text class="label" x="60.5" y="65" text-anchor="middle">Pico H</text>
+  <text class="label" x="60.5" y="78" text-anchor="middle">(10-15mm)</text>
+
+  <!-- ============ Representative footswitch, Y=88 -> X_svg=103, profile 97-109 ============ -->
+  <rect class="part" x="99" y="31" width="8" height="9"/>
+  <rect class="part" x="97" y="40" width="12" height="3"/>
+  <rect class="part" x="98" y="43" width="10" height="13"/>
+  <rect class="part" x="100" y="56" width="6" height="4"/>
+  <text class="label" x="103" y="27" text-anchor="middle">Footswitch (Y=88)</text>
+
+  <!-- stack breakdown, to the right of the switch -->
+  <g class="dim">
+    <line x1="110" y1="31" x2="113" y2="31"/>
+    <line x1="110" y1="40" x2="113" y2="40"/>
+    <line x1="111.5" y1="31" x2="111.5" y2="40"/>
+  </g>
+  <text class="label" x="115" y="36.5">9mm cap (above lid)</text>
+  <g class="dim">
+    <line x1="110" y1="40" x2="113" y2="40"/>
+    <line x1="110" y1="43" x2="113" y2="43"/>
+    <line x1="111.5" y1="40" x2="111.5" y2="43"/>
+  </g>
+  <text class="label" x="115" y="42.5">3mm nut/washer</text>
+  <g class="dim">
+    <line x1="110" y1="43" x2="113" y2="43"/>
+    <line x1="110" y1="56" x2="113" y2="56"/>
+    <line x1="111.5" y1="43" x2="111.5" y2="56"/>
+  </g>
+  <text class="label" x="115" y="50">13mm body</text>
+  <g class="dim">
+    <line x1="110" y1="56" x2="113" y2="56"/>
+    <line x1="110" y1="60" x2="113" y2="60"/>
+    <line x1="111.5" y1="56" x2="111.5" y2="60"/>
+  </g>
+  <text class="label" x="115" y="58.5">4mm solder lugs</text>
+
+  <!-- ============ Overall dimensions ============ -->
+  <g class="dim">
+    <line x1="6" y1="40" x2="9" y2="40"/>
+    <line x1="6" y1="95" x2="9" y2="95"/>
+    <line x1="7.5" y1="40" x2="7.5" y2="95"/>
+  </g>
+  <text class="dimtext" x="7.5" y="68" text-anchor="middle" transform="rotate(-90 7.5 68)">55mm interior height</text>
+
+  <g class="dim">
+    <line x1="15" y1="107" x2="15" y2="110"/>
+    <line x1="161" y1="107" x2="161" y2="110"/>
+    <line x1="15" y1="108.5" x2="161" y2="108.5"/>
+  </g>
+  <text class="dimtext" x="88" y="113" text-anchor="middle">146mm interior depth</text>
+
+  <!-- ============ Calibration bar ============ -->
+  <line x1="15" y1="120" x2="65" y2="120" stroke="black" stroke-width="0.5"/>
+  <line x1="15" y1="117" x2="15" y2="123" stroke="black" stroke-width="0.5"/>
+  <line x1="65" y1="117" x2="65" y2="123" stroke="black" stroke-width="0.5"/>
+  <text class="note" x="40" y="127" text-anchor="middle">50mm — measure this line if you print to scale</text>
+
+  <!-- ============ Notes ============ -->
+  <text class="note" x="3" y="140">OLED and USB coupler look close together here (~1.9mm gap) only because their Y-ranges happen to be near each</text>
+  <text class="note" x="3" y="144">other — in the real box they're also 10mm apart sideways (OLED at X 75-147, coupler at X 157-183), so this is</text>
+  <text class="note" x="3" y="148">not a real clearance problem, just a coincidence of collapsing left-right position onto one view.</text>
+  <text class="note" x="3" y="154">Pico is drawn under the OLED's Y-range because that's roughly where it's meant to sit (§4/§8 of</text>
+  <text class="note" x="3" y="158">pipedal-hardware-v2.md) — its exact position isn't pinned down further than "near the OLED," so treat this as</text>
+  <text class="note" x="3" y="162">illustrative, not a fixed spec.</text>
+  <text class="note" x="3" y="168">Every A-1874 footswitch uses the identical stack (9mm cap / 3mm nut / 13mm body / 4mm lugs); only Y (and X)</text>
+  <text class="note" x="3" y="172">differ. Only the solid switch (Y=88) and the dashed "ghost" RESET/TUNER-MUTE (Y=15) are drawn; SW4-6/SNAPSHOT</text>
+  <text class="note" x="3" y="176">(Y=128) and the rest share the same shape, just moved — not drawn again to keep this readable.</text>
+  <text class="note" x="3" y="180">RESET/TUNER-MUTE is drawn dashed/pale ON PURPOSE, overlapping the USB coupler: they share Y=15 with the</text>
+  <text class="note" x="3" y="184">coupler's 0-28.6mm Y-range. RESET (X=22) is far from the coupler (X=170); TUNER/MUTE (X=198) is only ~28mm</text>
+  <text class="note" x="3" y="188">away but still clears, by ~8-9mm — checked in X-Y on the lid/backwall SVGs, not derivable from this view.</text>
+  <text class="note" x="3" y="194">The footswitch's 20mm below-panel stack plus the Pico's up-to-15mm floor stack would together use exactly</text>
+  <text class="note" x="3" y="198">35mm — the box's entire clear interior height — if they ever ended up at the same X. That's another reason</text>
+  <text class="note" x="3" y="202">the Pico's real X (kept near the OLED, away from every switch's X) matters as much as its Y.</text>
+
+  <!-- ============ Legend ============ -->
+  <g class="legend">
+    <rect x="0" y="208" width="220" height="34" fill="none" stroke="black" stroke-width="0.5"/>
+    <text class="hdr" x="3" y="213">Component reference (datasheet/estimate figures, not measured — see pipedal-hardware-v2.md §2.3/§2.3a)</text>
+    <text x="3" y="218">Footswitch (A-1874), x10 — 9mm cap above the panel + 20mm below (3mm nut/washer + 13mm body + 4mm lugs).</text>
+    <text x="3" y="222">OLED module (A-7502) — 8-13mm deep below the panel; 72x43mm footprint (43mm shown here is front-to-back).</text>
+    <text x="3" y="226">Raspberry Pi Pico H — floor-mounted, 10-15mm tall with header pins up; 51x21mm board (21mm shown here).</text>
+    <text x="3" y="230">USB-A coupler (back wall) — 28.6mm body depth behind the panel, ⌀23.7mm bore, flange 26x31mm.</text>
+    <text x="3" y="234">Preset-browse encoder (§4.2) — not drawn. Now confirmed from Alpha's datasheet: M7x0.75 bushing, 7mm long</text>
+    <text x="3" y="238">(mostly on the front/panel side), body ~10mm deep behind the panel — well inside the 35mm clear height.</text>
+  </g>
+</svg>

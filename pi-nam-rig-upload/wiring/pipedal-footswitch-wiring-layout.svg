@@ -1,0 +1,390 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-18 -20 258 585" font-family="Arial, sans-serif">
+
+  <!-- ============ TITLE ============ -->
+  <text x="111" y="-12" text-anchor="middle" font-size="7" font-weight="bold">Footswitch box — wiring layout (matches YOUR wiring view)</text>
+  <text x="111" y="-6" text-anchor="middle" font-size="3.4" fill="#444">Mirrored left-right from the drill-template/top-view coordinates in pipedal-hardware-v2.md — confirmed against your own row-by-row description: TUNER/MUTE + USB coupler on the left, RESET on the right, Pico on the right wall. Wire paths are simplified straight lines, not exact dressed routing.</text>
+
+  <!-- ============ PANEL OUTLINE ============ -->
+  <rect x="0" y="0" width="222" height="146" fill="#fbfbfb" stroke="#000" stroke-width="1"/>
+  <text x="111" y="-1.5" text-anchor="middle" font-size="3.6" fill="#666">BACK WALL (USB coupler + TUNER/MUTE side)</text>
+  <text x="111" y="150.5" text-anchor="middle" font-size="3.6" fill="#666">FRONT EDGE (player side)</text>
+  <text x="-3" y="73" text-anchor="middle" font-size="3.6" fill="#666" transform="rotate(-90 -3 73)">LEFT edge (TUNER/MUTE side)</text>
+  <text x="228" y="73" text-anchor="middle" font-size="3.6" fill="#666" transform="rotate(90 228 73)">RIGHT WALL — Pico mounted here</text>
+
+  <!-- ============ USB COUPLER (back wall) ============ -->
+  <rect x="45" y="-6" width="14" height="6" fill="none" stroke="#1a6ec1" stroke-width="0.6" stroke-dasharray="1.5,1"/>
+  <text x="52" y="-8" text-anchor="middle" font-size="3">USB coupler</text>
+  <text x="52" y="-3.2" text-anchor="middle" font-size="2.6">back wall</text>
+
+  <!-- ============ PICO (right wall, confirmed) + GROUND BUS ============ -->
+  <rect x="200" y="35" width="18" height="45" fill="#eef6ff" stroke="#1a6ec1" stroke-width="0.8"/>
+  <pattern id="tape" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="4" stroke="#1a6ec1" stroke-width="0.4"/>
+  </pattern>
+  <rect x="200" y="35" width="18" height="45" fill="url(#tape)" opacity="0.3"/>
+  <text x="209" y="45" text-anchor="middle" font-size="3" font-weight="bold" transform="rotate(90 209 45)">Pico H</text>
+  <text x="209" y="55" text-anchor="middle" font-size="2.6" transform="rotate(90 209 55)">taped flat to the</text>
+  <text x="209" y="65" text-anchor="middle" font-size="2.6" transform="rotate(90 209 65)">RIGHT WALL</text>
+  <text x="222" y="30" text-anchor="middle" font-size="2.6" fill="#666">(drawn thicker than</text>
+  <text x="222" y="34" text-anchor="middle" font-size="2.6" fill="#666">actual for visibility —</text>
+  <text x="222" y="83" text-anchor="middle" font-size="2.6" fill="#666">flat-mounted, confirm position)</text>
+
+  <rect x="45" y="48" width="22" height="4" fill="#888" stroke="#000" stroke-width="0.4"/>
+  <text x="56" y="46" text-anchor="middle" font-size="3" font-weight="bold">GROUND BUS</text>
+  <text x="56" y="57" text-anchor="middle" font-size="2.6" fill="#666">(moved here — left of OLED, more room)</text>
+  <line x1="67" y1="50" x2="200" y2="45" stroke="#000" stroke-width="0.9"/>
+  <text x="130" y="41" text-anchor="middle" font-size="2.6" fill="#666">1 long wire, bus → Pico GND (~140mm+)</text>
+
+  <!-- ============ WIRES ============ -->
+  <!-- RESET, TUNER/MUTE -->
+  <line x1="200" y1="15" x2="200" y2="35" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="200" y1="15" x2="67" y2="50" stroke="#000" stroke-width="0.5"/>
+  <line x1="24" y1="15" x2="200" y2="45" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="24" y1="15" x2="45" y2="50" stroke="#000" stroke-width="0.5"/>
+
+  <!-- Row Y=88: PRESET, LED, SW3, SW2, SW1 -->
+  <line x1="28.5" y1="88" x2="200" y2="60" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="28.5" y1="88" x2="48" y2="51" stroke="#000" stroke-width="0.5"/>
+
+  <line x1="45" y1="88" x2="200" y2="63" stroke="#e8b800" stroke-width="0.6"/>
+  <line x1="45" y1="88" x2="52" y2="51" stroke="#000" stroke-width="0.5"/>
+
+  <line x1="83.5" y1="88" x2="200" y2="66" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="83.5" y1="88" x2="56" y2="51" stroke="#000" stroke-width="0.5"/>
+
+  <line x1="138.5" y1="88" x2="200" y2="70" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="138.5" y1="88" x2="60" y2="51" stroke="#000" stroke-width="0.5"/>
+
+  <line x1="193.5" y1="88" x2="200" y2="73" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="193.5" y1="88" x2="64" y2="51" stroke="#000" stroke-width="0.5"/>
+
+  <!-- Row Y=128: SNAPSHOT, LED, SW6, SW5, SW4 -->
+  <line x1="28.5" y1="128" x2="200" y2="76" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="28.5" y1="128" x2="48" y2="49" stroke="#000" stroke-width="0.5"/>
+
+  <line x1="45" y1="128" x2="200" y2="79" stroke="#e8b800" stroke-width="0.6"/>
+  <line x1="45" y1="128" x2="52" y2="49" stroke="#000" stroke-width="0.5"/>
+
+  <line x1="83.5" y1="128" x2="205" y2="80" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="83.5" y1="128" x2="56" y2="49" stroke="#000" stroke-width="0.5"/>
+
+  <line x1="138.5" y1="128" x2="210" y2="80" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="138.5" y1="128" x2="60" y2="49" stroke="#000" stroke-width="0.5"/>
+
+  <line x1="193.5" y1="128" x2="215" y2="80" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="193.5" y1="128" x2="64" y2="49" stroke="#000" stroke-width="0.5"/>
+
+  <!-- Encoder -->
+  <line x1="167" y1="52" x2="200" y2="52" stroke="#d21e1e" stroke-width="0.5"/>
+  <line x1="167" y1="52" x2="67" y2="49" stroke="#000" stroke-width="0.5"/>
+
+  <!-- OLED ribbon (dashed blue, plug-in) -->
+  <line x1="145" y1="52" x2="200" y2="50" stroke="#1a6ec1" stroke-width="0.8" stroke-dasharray="2,1.2"/>
+
+  <!-- USB cable Pico<->coupler (dashed blue) -->
+  <line x1="52" y1="0" x2="200" y2="40" stroke="#1a6ec1" stroke-width="0.8" stroke-dasharray="2,1.2"/>
+
+  <!-- ============ HOLES + LABELS ============ -->
+  <!-- RESET: X=200, Y=15 -->
+  <circle cx="200" cy="15" r="6" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="200,7 202,10 198,10" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="200" y="4.5" text-anchor="middle" font-size="3">RESET</text>
+  <text x="200" y="24.5" text-anchor="middle" font-size="2.6">GP10</text>
+  <text x="188" y="16" text-anchor="middle" font-size="2.3" fill="#d21e1e">L1</text>
+  <text x="212" y="16" text-anchor="middle" font-size="2.3">L2</text>
+
+  <!-- TUNER/MUTE: X=24, Y=15 -->
+  <circle cx="24" cy="15" r="6" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="24,7 26,10 22,10" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="24" y="4.5" text-anchor="middle" font-size="3">TUNER/MUTE</text>
+  <text x="24" y="24.5" text-anchor="middle" font-size="2.6">GP11</text>
+  <text x="12" y="16" text-anchor="middle" font-size="2.3" fill="#d21e1e">L1</text>
+  <text x="36" y="16" text-anchor="middle" font-size="2.3">L2</text>
+
+  <!-- OLED mounting holes + cutout -->
+  <circle cx="77" cy="32.6" r="1.5" fill="none" stroke="#000" stroke-width="0.4"/>
+  <circle cx="145" cy="32.6" r="1.5" fill="none" stroke="#000" stroke-width="0.4"/>
+  <circle cx="77" cy="71.4" r="1.5" fill="none" stroke="#000" stroke-width="0.4"/>
+  <circle cx="145" cy="71.4" r="1.5" fill="none" stroke="#000" stroke-width="0.4"/>
+  <rect x="82" y="37" width="58" height="30" fill="none" stroke="#000" stroke-width="0.6" stroke-dasharray="1.5,1"/>
+  <text x="111" y="50" text-anchor="middle" font-size="3.2">OLED (SSD1309)</text>
+  <text x="111" y="54" text-anchor="middle" font-size="2.6">SPI0: GP14-18, 3V3, GND</text>
+  <text x="111" y="34" text-anchor="middle" font-size="2.6" fill="#1a6ec1">ribbon, plug-in — header edge should face</text>
+  <text x="111" y="30" text-anchor="middle" font-size="2.6" fill="#c0392b">RIGHT (toward Pico) — dress the ribbon clear of</text>
+  <text x="111" y="26" text-anchor="middle" font-size="2.6" fill="#c0392b">the encoder's knob, which now sits in that path →</text>
+
+  <!-- Encoder: X=167, Y=52 -->
+  <circle cx="167" cy="52" r="3.55" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="167,45.5 169,48.5 165,48.5" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="167" y="41.5" text-anchor="middle" font-size="3">ENCODER</text>
+  <text x="167" y="63.5" text-anchor="middle" font-size="2.6">A=GP19 B=GP20 SW1=GP21</text>
+  <text x="160" y="47" text-anchor="middle" font-size="2.3" fill="#d21e1e">A</text>
+  <text x="174" y="47" text-anchor="middle" font-size="2.3" fill="#d21e1e">B</text>
+  <text x="157" y="54" text-anchor="middle" font-size="2.3">C</text>
+  <text x="160" y="60" text-anchor="middle" font-size="2.3" fill="#d21e1e">SW1</text>
+  <text x="175" y="60" text-anchor="middle" font-size="2.3">SW2</text>
+
+  <!-- PRESET mode button: X=28.5, Y=88 -->
+  <circle cx="28.5" cy="88" r="6" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="28.5,80 30.5,83 26.5,83" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="28.5" y="77.5" text-anchor="middle" font-size="3">PRESET</text>
+  <text x="28.5" y="97.5" text-anchor="middle" font-size="2.6">GP8</text>
+  <text x="19.5" y="89" text-anchor="middle" font-size="2.3" fill="#d21e1e">L1</text>
+  <text x="37.5" y="89" text-anchor="middle" font-size="2.3">L2</text>
+
+  <!-- PRESET LED: X=45, Y=88 -->
+  <circle cx="45" cy="88" r="2.5" fill="none" stroke="#000" stroke-width="0.5" stroke-dasharray="0.6,0.6"/>
+  <text x="45" y="80.5" text-anchor="middle" font-size="2.8">LED</text>
+  <text x="45" y="97.5" text-anchor="middle" font-size="2.6">GP12</text>
+
+  <!-- SW3: X=83.5, Y=88 -->
+  <circle cx="83.5" cy="88" r="6" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="83.5,80 85.5,83 81.5,83" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="83.5" y="77.5" text-anchor="middle" font-size="3">SW3</text>
+  <text x="83.5" y="97.5" text-anchor="middle" font-size="2.6">GP4</text>
+  <text x="74.5" y="89" text-anchor="middle" font-size="2.3" fill="#d21e1e">L1</text>
+  <text x="92.5" y="89" text-anchor="middle" font-size="2.3">L2</text>
+
+  <!-- SW2: X=138.5, Y=88 -->
+  <circle cx="138.5" cy="88" r="6" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="138.5,80 140.5,83 136.5,83" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="138.5" y="77.5" text-anchor="middle" font-size="3">SW2</text>
+  <text x="138.5" y="97.5" text-anchor="middle" font-size="2.6">GP3</text>
+  <text x="129.5" y="89" text-anchor="middle" font-size="2.3" fill="#d21e1e">L1</text>
+  <text x="147.5" y="89" text-anchor="middle" font-size="2.3">L2</text>
+
+  <!-- SW1: X=193.5, Y=88 -->
+  <circle cx="193.5" cy="88" r="6" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="193.5,80 195.5,83 191.5,83" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="193.5" y="77.5" text-anchor="middle" font-size="3">SW1</text>
+  <text x="193.5" y="97.5" text-anchor="middle" font-size="2.6">GP2</text>
+  <text x="184.5" y="89" text-anchor="middle" font-size="2.3" fill="#d21e1e">L1</text>
+  <text x="202.5" y="89" text-anchor="middle" font-size="2.3">L2</text>
+
+  <!-- SNAPSHOT mode button: X=28.5, Y=128 -->
+  <circle cx="28.5" cy="128" r="6" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="28.5,120 30.5,123 26.5,123" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="28.5" y="117.5" text-anchor="middle" font-size="3">SNAPSHOT</text>
+  <text x="28.5" y="137.5" text-anchor="middle" font-size="2.6">GP9</text>
+  <text x="19.5" y="129" text-anchor="middle" font-size="2.3" fill="#d21e1e">L1</text>
+  <text x="37.5" y="129" text-anchor="middle" font-size="2.3">L2</text>
+
+  <!-- SNAPSHOT LED: X=45, Y=128 -->
+  <circle cx="45" cy="128" r="2.5" fill="none" stroke="#000" stroke-width="0.5" stroke-dasharray="0.6,0.6"/>
+  <text x="45" y="120.5" text-anchor="middle" font-size="2.8">LED</text>
+  <text x="45" y="137.5" text-anchor="middle" font-size="2.6">GP13</text>
+
+  <!-- SW6: X=83.5, Y=128 -->
+  <circle cx="83.5" cy="128" r="6" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="83.5,120 85.5,123 81.5,123" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="83.5" y="117.5" text-anchor="middle" font-size="3">SW6</text>
+  <text x="83.5" y="137.5" text-anchor="middle" font-size="2.6">GP7</text>
+  <text x="74.5" y="129" text-anchor="middle" font-size="2.3" fill="#d21e1e">L1</text>
+  <text x="92.5" y="129" text-anchor="middle" font-size="2.3">L2</text>
+
+  <!-- SW5: X=138.5, Y=128 -->
+  <circle cx="138.5" cy="128" r="6" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="138.5,120 140.5,123 136.5,123" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="138.5" y="117.5" text-anchor="middle" font-size="3">SW5</text>
+  <text x="138.5" y="137.5" text-anchor="middle" font-size="2.6">GP6</text>
+  <text x="129.5" y="129" text-anchor="middle" font-size="2.3" fill="#d21e1e">L1</text>
+  <text x="147.5" y="129" text-anchor="middle" font-size="2.3">L2</text>
+
+  <!-- SW4: X=193.5, Y=128 -->
+  <circle cx="193.5" cy="128" r="6" fill="none" stroke="#000" stroke-width="0.6"/>
+  <polygon points="193.5,120 195.5,123 191.5,123" fill="none" stroke="#333" stroke-width="0.3"/>
+  <text x="193.5" y="117.5" text-anchor="middle" font-size="3">SW4</text>
+  <text x="193.5" y="137.5" text-anchor="middle" font-size="2.6">GP5</text>
+  <text x="184.5" y="129" text-anchor="middle" font-size="2.3" fill="#d21e1e">L1</text>
+  <text x="202.5" y="129" text-anchor="middle" font-size="2.3">L2</text>
+
+  <!-- ============ LEGEND ============ -->
+  <text x="0" y="160" font-size="4.2" font-weight="bold">Legend — connection types</text>
+
+  <line x1="0" y1="172" x2="12" y2="172" stroke="#d21e1e" stroke-width="0.8"/>
+  <text x="14" y="173.2" font-size="3">Signal wire — soldered at the part, plug-in (Dupont socket) at the Pico header</text>
+
+  <line x1="0" y1="177" x2="12" y2="177" stroke="#000" stroke-width="0.8"/>
+  <text x="14" y="178.2" font-size="3">Ground wire — soldered at the part, joins the ground bus</text>
+
+  <line x1="0" y1="182" x2="12" y2="182" stroke="#e8b800" stroke-width="1"/>
+  <text x="14" y="183.2" font-size="3">LED anode wire (through its resistor) — soldered, plug-in at the Pico</text>
+
+  <line x1="0" y1="187" x2="12" y2="187" stroke="#1a6ec1" stroke-width="0.8" stroke-dasharray="2,1.2"/>
+  <text x="14" y="188.2" font-size="3">Plug-in only, no solder anywhere (OLED ribbon, both USB cables)</text>
+
+  <rect x="0" y="190.5" width="12" height="4" fill="#888" stroke="#000" stroke-width="0.4"/>
+  <text x="14" y="193.7" font-size="3">Ground bus — twist-and-solder joint, or a screw terminal strip</text>
+
+  <polygon points="6,196.5 9,201.5 3,201.5" fill="none" stroke="#333" stroke-width="0.4"/>
+  <text x="14" y="200" font-size="3">Mechanical fastening only, no wire — nut/bolt/screw (switch bushings,</text>
+  <text x="14" y="203.5" font-size="3">OLED mounting screws, USB coupler bolts, encoder bushing)</text>
+
+  <circle cx="6" cy="208" r="2.5" fill="none" stroke="#000" stroke-width="0.5" stroke-dasharray="0.6,0.6"/>
+  <text x="14" y="209.2" font-size="3">Friction-fit + optional dab of glue (LED body in its panel hole)</text>
+
+  <rect x="0" y="212" width="12" height="6" fill="url(#tape)" fill-opacity="0.3" stroke="#1a6ec1" stroke-width="0.5"/>
+  <text x="14" y="216" font-size="3">Taped down — double-sided mounting tape over an insulation layer</text>
+  <text x="14" y="219.5" font-size="3">(Pico only, on the RIGHT WALL — a fixed wall, not the removable access lid)</text>
+
+  <text x="0" y="228" font-size="3.2" fill="#444">L1/L2 = the switch's 2 used lugs (of 6 — it's a DPDT, only one pole's COM+NO pair is wired). L1 = signal (red), L2 = ground (black).</text>
+  <text x="0" y="233" font-size="3.2" fill="#444">Encoder: A/B = quadrature signal, C = their shared ground, SW1 = push-switch signal, SW2 = push-switch ground.</text>
+  <text x="0" y="238" font-size="3.2" fill="#444">Full pin table: pipedal-footswitch-wiring-reference.md. Build order: pipedal-footswitch-wiring-procedure.md.</text>
+  <text x="0" y="243" font-size="3.2" fill="#444">Pico is on a FIXED wall (not the detachable access lid) — every switch/OLED/encoder is on the fixed ceiling too, so nothing here ever needs to disconnect when the box is opened.</text>
+
+  <!-- ============ SWITCH LUG IDENTIFICATION (confirmed marked: "M 1 2 3" stamped on one face) ============ -->
+  <rect x="0" y="250" width="222" height="85" fill="none" stroke="#999" stroke-width="0.4"/>
+  <text x="4" y="257" font-size="4.2" font-weight="bold">Identifying your 2 lugs (this switch is a DPDT — 6 lugs, only 2 used)</text>
+  <text x="4" y="262.5" font-size="3" fill="#1a7a1a">Confirmed: one face of the base is stamped "M 1 2 3" — M is the body-length code (matches the -M</text>
+  <text x="4" y="266.5" font-size="3" fill="#1a7a1a">in SF12N-0202-20R-M), 1/2/3 are the real pin numbers. Wire lugs 1 and 2 (marked), leave 3 unconnected.</text>
+
+  <!-- generic switch body, viewed from underside (solder-lug side) -->
+  <circle cx="45" cy="300" r="15" fill="#fbfbfb" stroke="#000" stroke-width="0.6"/>
+  <text x="45" y="292" text-anchor="middle" font-size="2.6" fill="#666">switch body (underside)</text>
+
+  <!-- 2 rows of 3 lugs (rotates to 3 rows of 2 if the switch is turned 90°) -->
+  <circle cx="33" cy="296" r="2.2" fill="none" stroke="#1a7a1a" stroke-width="0.7"/>
+  <text x="33" y="297" text-anchor="middle" font-size="2.6" fill="#1a7a1a" font-weight="bold">1</text>
+  <circle cx="45" cy="296" r="2.2" fill="none" stroke="#1a7a1a" stroke-width="0.7"/>
+  <text x="45" y="297" text-anchor="middle" font-size="2.6" fill="#1a7a1a" font-weight="bold">2</text>
+  <circle cx="57" cy="296" r="2.2" fill="none" stroke="#000" stroke-width="0.5"/>
+  <text x="57" y="297" text-anchor="middle" font-size="2.6">3</text>
+
+  <circle cx="33" cy="308" r="2.2" fill="none" stroke="#000" stroke-width="0.5"/>
+  <text x="33" y="309" text-anchor="middle" font-size="2.6">1'</text>
+  <circle cx="45" cy="308" r="2.2" fill="none" stroke="#000" stroke-width="0.5"/>
+  <text x="45" y="309" text-anchor="middle" font-size="2.6">2'</text>
+  <circle cx="57" cy="308" r="2.2" fill="none" stroke="#000" stroke-width="0.5"/>
+  <text x="57" y="309" text-anchor="middle" font-size="2.6">3'</text>
+
+  <text x="45" y="319" text-anchor="middle" font-size="2.6" fill="#1a7a1a">marked face: "M 1 2 3" — wire 1+2</text>
+  <text x="45" y="323" text-anchor="middle" font-size="2.6" fill="#666">opposite face (2nd pole) — all unused</text>
+
+  <!-- method, right side -->
+  <text x="90" y="272" font-size="3.4" font-weight="bold">Wire the marked pins, verify with a multimeter first:</text>
+  <text x="90" y="277.5" font-size="3">1. Find the face stamped "M 1 2 3" — wire lugs 1 and 2. Leave 3</text>
+  <text x="90" y="281.5" font-size="3">   unconnected, and the entire opposite face untouched.</text>
+  <text x="90" y="287.5" font-size="3">2. Quick check before soldering (continuity mode, switch</text>
+  <text x="90" y="291.5" font-size="3">   unpressed): lugs 1+2 should read open, then closed while you</text>
+  <text x="90" y="295.5" font-size="3">   hold the switch pressed. Confirms you're reading the right</text>
+  <text x="90" y="299.5" font-size="3">   face before solder goes on — costs 5 seconds.</text>
+  <text x="90" y="305.5" font-size="3" font-weight="bold">No marking, or can't read it? Fall back to multimeter alone:</text>
+  <text x="90" y="310" font-size="3">3. Try lug pairs until one goes open→closed exactly as above.</text>
+  <text x="90" y="314" font-size="3">   That's your pair — 3rd lug of that group + whole other pole</text>
+  <text x="90" y="318" font-size="3">   stay unconnected, same as the marked case.</text>
+  <text x="90" y="323.5" font-size="3" fill="#666">Do this per switch — don't assume all ten seat/read the same way.</text>
+
+  <!-- ============ OLED WIRING DETAIL (generic — match by printed label, not this layout) ============ -->
+  <rect x="0" y="340" width="222" height="110" fill="none" stroke="#999" stroke-width="0.4"/>
+  <text x="4" y="347" font-size="4.2" font-weight="bold">OLED wiring detail — 7 pins, fully plug-in, no soldering</text>
+  <text x="4" y="352.5" font-size="3" fill="#c0392b">Pin order along the header below is illustrative/generic, NOT confirmed for your specific module. Read the label</text>
+  <text x="4" y="356.5" font-size="3" fill="#c0392b">PRINTED on your board's silkscreen next to each pin and match it to the Pico target here — go by name, not position.</text>
+
+  <!-- generic OLED module -->
+  <rect x="15" y="365" width="70" height="34" fill="#fbfbfb" stroke="#000" stroke-width="0.6"/>
+  <text x="50" y="378" text-anchor="middle" font-size="3">OLED module</text>
+  <text x="50" y="383" text-anchor="middle" font-size="2.6" fill="#666">(2.42" SSD1309)</text>
+  <text x="50" y="392" text-anchor="middle" font-size="2.4" fill="#666">header edge — orient toward</text>
+  <text x="50" y="396" text-anchor="middle" font-size="2.4" fill="#666">the right wall (Pico), away from encoder</text>
+
+  <!-- 7-pin header row, generic left-to-right order -->
+  <g font-size="2.5">
+    <!-- pin dots along bottom edge of module -->
+    <circle cx="20" cy="399" r="1.4" fill="none" stroke="#000" stroke-width="0.4"/>
+    <circle cx="30" cy="399" r="1.4" fill="none" stroke="#e07b00" stroke-width="0.6"/>
+    <circle cx="40" cy="399" r="1.4" fill="none" stroke="#000" stroke-width="0.4"/>
+    <circle cx="50" cy="399" r="1.4" fill="none" stroke="#000" stroke-width="0.4"/>
+    <circle cx="60" cy="399" r="1.4" fill="none" stroke="#000" stroke-width="0.4"/>
+    <circle cx="70" cy="399" r="1.4" fill="none" stroke="#000" stroke-width="0.4"/>
+    <circle cx="80" cy="399" r="1.4" fill="none" stroke="#000" stroke-width="0.4"/>
+  </g>
+
+  <!-- labels + dashed plug-in lines to Pico-side targets listed at right -->
+  <text x="20" y="405" text-anchor="middle" font-size="2.6">GND</text>
+  <text x="30" y="405" text-anchor="middle" font-size="2.6" fill="#e07b00" font-weight="bold">VCC</text>
+  <text x="40" y="405" text-anchor="middle" font-size="2.6">SCL</text>
+  <text x="50" y="405" text-anchor="middle" font-size="2.6">SDA</text>
+  <text x="60" y="405" text-anchor="middle" font-size="2.6">RES</text>
+  <text x="70" y="405" text-anchor="middle" font-size="2.6">DC</text>
+  <text x="80" y="405" text-anchor="middle" font-size="2.6">CS</text>
+
+  <line x1="20" y1="399" x2="120" y2="368" stroke="#1a6ec1" stroke-width="0.5" stroke-dasharray="1.5,1"/>
+  <line x1="30" y1="399" x2="120" y2="374" stroke="#e07b00" stroke-width="0.7" stroke-dasharray="1.5,1"/>
+  <line x1="40" y1="399" x2="120" y2="380" stroke="#1a6ec1" stroke-width="0.5" stroke-dasharray="1.5,1"/>
+  <line x1="50" y1="399" x2="120" y2="386" stroke="#1a6ec1" stroke-width="0.5" stroke-dasharray="1.5,1"/>
+  <line x1="60" y1="399" x2="120" y2="392" stroke="#1a6ec1" stroke-width="0.5" stroke-dasharray="1.5,1"/>
+  <line x1="70" y1="399" x2="120" y2="398" stroke="#1a6ec1" stroke-width="0.5" stroke-dasharray="1.5,1"/>
+  <line x1="80" y1="399" x2="120" y2="404" stroke="#1a6ec1" stroke-width="0.5" stroke-dasharray="1.5,1"/>
+
+  <!-- Pico-side target list -->
+  <rect x="120" y="365" width="98" height="45" fill="#eef6ff" stroke="#1a6ec1" stroke-width="0.5"/>
+  <text x="165" y="371" text-anchor="middle" font-size="3" font-weight="bold">Pico target (by label, not slot)</text>
+  <text x="124" y="377" font-size="2.8">GND  →  GND</text>
+  <text x="124" y="383" font-size="2.8" fill="#e07b00" font-weight="bold">VCC  →  3V3(OUT) — 3.3V ONLY</text>
+  <text x="124" y="389" font-size="2.8">SCL  →  GP14 (SPI0 SCK)</text>
+  <text x="124" y="395" font-size="2.8">SDA  →  GP15 (SPI0 MOSI)</text>
+  <text x="124" y="401" font-size="2.8">RES  →  GP16</text>
+  <text x="124" y="407" font-size="2.8">DC   →  GP17, CS → GP18</text>
+
+  <text x="4" y="416" font-size="3" fill="#c0392b" font-weight="bold">The one connection that can damage the display: VCC must land on 3V3(OUT), never VBUS/5V.</text>
+  <text x="4" y="421" font-size="3">Every other pin, if swapped, just gives a blank/garbled screen — no solder to undo, just re-check</text>
+  <text x="4" y="425" font-size="3">and re-plug the ribbon. It's a single female-female Dupont ribbon (7 of 10 conductors used),</text>
+  <text x="4" y="429" font-size="3">plugging straight onto both the OLED's header and the Pico's — no cutting, no soldering at all.</text>
+  <text x="4" y="435" font-size="3" fill="#666">Full pin table + reasoning: pipedal-footswitch-wiring-reference.md, "OLED" section.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <!-- ============ ENCODER WIRING DETAIL (zoomed) ============ -->
+  <rect x="0" y="460" width="222" height="120" fill="none" stroke="#999" stroke-width="0.4"/>
+  <text x="4" y="467" font-size="4.2" font-weight="bold">Encoder wiring detail — 5 pins, zoomed</text>
+  <text x="4" y="472.5" font-size="3" fill="#1a7a1a">CONFIRMED, both from the datasheet AND multimeter-tested on your actual part. Datasheet's front</text>
+  <text x="4" y="476.5" font-size="3" fill="#1a7a1a">view (knob facing you) reads bottom 3 pins A-C-B left to right — but that's the OPPOSITE face from</text>
+  <text x="4" y="480.5" font-size="3" fill="#1a7a1a">where you're wiring. Mirrored for YOUR view from below: bottom reads B-C-A left to right (below).</text>
+  <text x="4" y="484.5" font-size="3" fill="#1a7a1a">Top 2 = SW1/SW2, confirmed by your own multimeter test (open at rest, closed only when pressed).</text>
+
+  <!-- encoder body, underside view -->
+  <circle cx="55" cy="520" r="22" fill="#fbfbfb" stroke="#000" stroke-width="0.6"/>
+  <text x="55" y="494" text-anchor="middle" font-size="3" fill="#666">encoder body (underside)</text>
+  <text x="55" y="546" text-anchor="middle" font-size="2.8" fill="#666">Alpha RE111F (Tayda A-6329 / Jaycar SR1230)</text>
+
+  <!-- 2-pin row on TOP: SW1, SW2 (push switch) -->
+  <circle cx="48" cy="510" r="3" fill="none" stroke="#d21e1e" stroke-width="0.9"/>
+  <text x="48" y="511.2" text-anchor="middle" font-size="2.6" fill="#d21e1e" font-weight="bold">SW1</text>
+  <circle cx="62" cy="510" r="3" fill="none" stroke="#000" stroke-width="0.7"/>
+  <text x="62" y="511.2" text-anchor="middle" font-size="2.6" font-weight="bold">SW2</text>
+  <text x="55" y="501" text-anchor="middle" font-size="2.6" fill="#666">integrated pushbutton (top)</text>
+
+  <!-- 3-pin row on BOTTOM, viewed from YOUR wiring side (below) — mirrored from the datasheet's
+       front-view "A C B" left-to-right, same left-right flip as the rest of this diagram -->
+  <circle cx="43" cy="530" r="3" fill="none" stroke="#d21e1e" stroke-width="0.9"/>
+  <text x="43" y="531.2" text-anchor="middle" font-size="3.4" fill="#d21e1e" font-weight="bold">B</text>
+  <circle cx="55" cy="530" r="3" fill="none" stroke="#000" stroke-width="0.7"/>
+  <text x="55" y="531.2" text-anchor="middle" font-size="3.4" font-weight="bold">C</text>
+  <circle cx="67" cy="530" r="3" fill="none" stroke="#d21e1e" stroke-width="0.9"/>
+  <text x="67" y="531.2" text-anchor="middle" font-size="3.4" fill="#d21e1e" font-weight="bold">A</text>
+  <text x="55" y="540" text-anchor="middle" font-size="2.6" fill="#666">quadrature — turning the shaft (bottom, YOUR view from below)</text>
+
+  <!-- Pico target box -->
+  <rect x="95" y="495" width="123" height="52" fill="#eef6ff" stroke="#1a6ec1" stroke-width="0.5"/>
+  <text x="156" y="502" text-anchor="middle" font-size="3.4" font-weight="bold">Pico target — all 5 soldered at encoder,</text>
+  <text x="156" y="507" text-anchor="middle" font-size="3.4" font-weight="bold">plug-in (Dupont) at the Pico end</text>
+  <text x="100" y="515" font-size="3" fill="#d21e1e">A    →  GP19  (signal)</text>
+  <text x="100" y="521.5" font-size="3" fill="#d21e1e">B    →  GP20  (signal)</text>
+  <text x="100" y="528" font-size="3">C    →  ground bus  (shared return for A/B)</text>
+  <text x="100" y="534.5" font-size="3" fill="#d21e1e">SW1  →  GP21  (signal)</text>
+  <text x="100" y="541" font-size="3">SW2  →  ground bus  (push switch's own return)</text>
+
+  <text x="55" y="558" text-anchor="middle" font-size="3" font-weight="bold">A/B read by rotaryio (hardware quadrature) —</text>
+  <text x="55" y="563" text-anchor="middle" font-size="3" font-weight="bold">only SW1 shares the same debounce logic</text>
+  <text x="55" y="568" text-anchor="middle" font-size="3" font-weight="bold">as the footswitches.</text>
+
+  <text x="156" y="555" text-anchor="middle" font-size="3">C and SW2 are two separate lugs on the part —</text>
+  <text x="156" y="560" text-anchor="middle" font-size="3">both end up on the same ground bus, but they're</text>
+  <text x="156" y="565" text-anchor="middle" font-size="3">not internally the same pin, wire both.</text>
+  <text x="156" y="573" text-anchor="middle" font-size="2.8" fill="#666">Distance to Pico: ~90-110mm (300mm jumper, plenty of slack).</text>
+
+</svg>

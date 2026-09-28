@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="256" viewBox="0 0 512 256">
+  <!-- Mockup of the OLED's 3x2 grid mode (idle/names, per pipedal-hardware-v2.md
+       §4.1 and oled_display.py's show_grid()).
+
+       Scale: 1 real OLED pixel = 4 SVG units. The real screen is 128x64px
+       (55.02x27.49mm active area), so this is 4x actual size for
+       readability. Proportions (column widths, row heights, text
+       position) are exact matches to oled_display.py's COL_X/COL_W/ROW_Y
+       constants, just not literal print-scale like the drill templates.
+
+       Column splits at 4x: 0, 168, 340; widths 168, 172, 172.
+       (real pixels: COL_X = 0, 42, 85; COL_W = 42, 43, 43)
+       Row splits at 4x: 0, 128; height 128 each.
+       (real pixels: ROW_Y = 0, 32; ROW_H = 32)
+
+       This is illustrative, not a pixel-exact font simulation. The real
+       terminalio bitmap font will look chunkier/blockier than this SVG
+       text rendering. Example content: SNAPSHOT mode, 6 real snapshot
+       names truncated to 6 chars each (matches pi_relay.py's
+       GRID_NAME_MAX_LEN), "Crunch" highlighted as the active one. -->
+
+  <style>
+    text { font-family: monospace; font-size: 28px; fill: white; }
+    .grid-line { stroke: #444; stroke-width: 1; }
+    .highlight { stroke: white; stroke-width: 4; fill: none; }
+  </style>
+
+  <rect x="0" y="0" width="512" height="256" fill="black"/>
+
+  <!-- faint grid lines, for the mockup only; the real screen has no
+       visible cell borders except around the highlighted one -->
+  <line class="grid-line" x1="168" y1="0" x2="168" y2="256"/>
+  <line class="grid-line" x1="340" y1="0" x2="340" y2="256"/>
+  <line class="grid-line" x1="0" y1="128" x2="512" y2="128"/>
+
+  <!-- row 1: Clean / Crunch (active) / Lead -->
+  <text x="12" y="76">Clean</text>
+  <text x="180" y="76">Crunch</text>
+  <text x="352" y="76">Lead</text>
+
+  <!-- row 2: Ambien / HeavyR / Boost -->
+  <text x="12" y="204">Ambien</text>
+  <text x="180" y="204">HeavyR</text>
+  <text x="352" y="204">Boost</text>
+
+  <!-- highlight border around "Crunch" (row 0, col 1) -->
+  <rect class="highlight" x="170" y="2" width="168" height="124"/>
+</svg>
