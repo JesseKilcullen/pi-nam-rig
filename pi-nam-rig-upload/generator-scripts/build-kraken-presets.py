@@ -40,6 +40,9 @@ IR_DIR = "CabIR/Factory IRs"
 RV_DIR = "ReverbImpulseFiles"
 
 P = "http://two-play.com/plugins/"
+# Not a TooB plugin: the pitch shifter built from TONE3000's engine (see
+# lv2-pitch-shift/ in this repo). It lives in /usr/lib/lv2/PitchShiftTone3000.lv2.
+PITCH_URI = "https://github.com/JesseKilcullen/pi-nam-rig/lv2-pitch-shift#mono"
 
 NAMES = {
     "toob-tuner": "TooB Tuner",
@@ -54,6 +57,8 @@ NAMES = {
     "toob-multi-echo-stereo": "TooB Multi-Tap Delay (Stereo)",
     "toob-freeverb": "TooB Freeverb",
     "toob-convolution-reverb-stereo": "TooB Convolution Reverb (Stereo)",
+    "toob-graphiceq": "TooB Graphic Eq",
+    PITCH_URI: "Pitch Shift (TONE3000 engine)",
 }
 
 
@@ -92,12 +97,15 @@ _next_id = [100]
 
 def item(short, controls, paths=None, enabled=True):
     """paths maps a full property URI to a plain relative path string.
-    Both pathProperties and lv2State are derived from it."""
+    Both pathProperties and lv2State are derived from it.
+
+    `short` is a TooB plugin's name ("toob-delay"), or a full plugin URI for
+    anything else (the pitch shifter)."""
     paths = paths or {}
     _next_id[0] += 1
     return {
         "instanceId": _next_id[0],
-        "uri": P + short,
+        "uri": short if "://" in short else P + short,
         "isEnabled": enabled,
         "controlValues": [{"key": k, "value": v} for k, v in controls.items()],
         "pluginName": NAMES[short],
@@ -134,6 +142,28 @@ def gate(threshold, hold=100, release=330, reduction=-60, attack=1,
         "hysteresis": hysteresis, "reduction": reduction, "release": release,
         "threshold": threshold, "trigger_led": 0,
     })
+
+
+def pitch_shift(semitones=0):
+    """The settings menu's Pitch Shift (pi_relay.py moves `semitones` and
+    switches `power` with it). Power is OFF by default: a powered-off
+    shifter is a bit-exact, zero-latency passthrough, so presets sound and
+    measure exactly as before until the shift is used. Window 1 = 30 ms (the
+    shifter's own default; covers bass and drop tunings). Tonality 20000 =
+    off, a pure shift. `latency` is an output port the host fills in."""
+    return item(PITCH_URI, {
+        "semitones": semitones, "step": 1, "tonality": 20000, "window": 1,
+        "power": 0, "latency": 0,
+    })
+
+
+def graphic_eq():
+    """The settings menu's Level and EQ. Everything flat: the menu moves
+    `level` and the seven band gains per preset."""
+    controls = {"gain_%dhz" % hz: 0
+                for hz in (100, 200, 400, 800, 1600, 3200, 6400)}
+    controls["level"] = 0
+    return item("toob-graphiceq", controls)
 
 
 def input_stage(trim=0, locut=80, bright=0):
@@ -263,10 +293,41 @@ def flatten(items):
 
 def short_name(uri):
     """The key snapshot selectors use. LV2 plugins are P-prefixed; the Split
-    node is not, so it selects as ("Split", 0)."""
+    node is not, so it selects as ("Split", 0). The pitch shifter's key is
+    "mono" (its URI fragment); nothing selects it."""
     if uri.startswith(P):
         return uri[len(P):]
     return uri.rsplit("#", 1)[-1]
+
+
+def with_menu_plugins(items):
+    """Add the two plugins the footswitch box's settings menu drives, to any
+    preset's chain. Done here, once, so every preset gets them and a
+    regenerate can never drop them.
+
+    Pitch Shift goes in front of the first amp/pedal capture or Split: it
+    wants the clean guitar signal, and a fuzz or amp after it should react
+    to the shifted note.
+
+    Graphic EQ goes right after the preset's main EQ, i.e. at the end of the
+    mono part of the chain and BEFORE the chorus/delay/reverb. Not at the
+    very end: it is a mono plugin, and PiPedal feeds a mono plugin only the
+    LEFT channel of a stereo signal, so after a stereo reverb it would
+    collapse the reverb's width. (Level and EQ behave the same here as at
+    the end; the wet effects just sit after them.)
+    """
+    items = list(items)
+
+    first_amp = next(i for i, it in enumerate(items)
+                     if it["uri"].endswith("toob-nam")
+                     or it["uri"] == SPLIT_URI)
+    items.insert(first_amp, pitch_shift())
+
+    eq_shorts = ("toob-three-band-eq", "toob-parametric-eq")
+    last_eq = max(i for i, it in enumerate(items)
+                  if short_name(it["uri"]) in eq_shorts)
+    items.insert(last_eq + 1, graphic_eq())
+    return items
 
 
 def cab_ir(wav):
@@ -665,6 +726,8 @@ def snapshots_for(name, items):
 
 
 LV2_DIR = "/usr/lib/lv2/ToobAmp.lv2"
+LV2_TTL_GLOBS = (LV2_DIR + "/*.ttl",
+                 "/usr/lib/lv2/PitchShiftTone3000.lv2/pitch_shift.ttl")
 
 
 def _port_ranges(text):
@@ -699,13 +762,14 @@ def _port_ranges(text):
 def _all_port_ranges():
     """plugin URI -> {symbol: (min, max)}, read off the installed TTLs."""
     result = {}
-    for path in sorted(glob.glob(os.path.join(LV2_DIR, "*.ttl"))):
+    paths = [p for g in LV2_TTL_GLOBS for p in sorted(glob.glob(g))]
+    for path in paths:
         with open(path, encoding="utf-8", errors="replace") as f:
             text = f.read()
         # Plugin declarations start at column 0 with <uri>. Everything up to
         # the next such line belongs to that plugin.
         marks = [(m.start(), m.group(1))
-                 for m in re.finditer(r"(?m)^<(http://[^>]+)>", text)]
+                 for m in re.finditer(r"(?m)^<(https?://[^>]+)>", text)]
         for n, (pos, uri) in enumerate(marks):
             end = marks[n + 1][0] if n + 1 < len(marks) else len(text)
             found = _port_ranges(text[pos:end])
@@ -1038,6 +1102,7 @@ def main():
         # Third element is output_volume_db, from the 2026-09-10
         # level-match pass. Defaults to 0 where a preset omits it.
         name, items, *rest = entry
+        items = with_menu_plugins(items)
         output_volume_db = rest[0] if rest else 0
         built.append({
             "instanceId": next_id,
