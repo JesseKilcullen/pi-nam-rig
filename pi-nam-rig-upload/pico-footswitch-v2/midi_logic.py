@@ -47,6 +47,166 @@ BROWSE_MAX_PRESETS = 24  # plenty for a real bank; caps the SysEx size
 MODE_SNAPSHOT = "SNAPSHOT"
 MODE_PRESET = "PRESET"
 
+# ── Settings menu (RESET switch + rotary encoder) ──────────────────────────
+# Pico -> Pi: the encoder never sets a value itself. Each turn sends a
+# *relative* step to pi_relay.py, which applies it to the live plugin through
+# PiPedal's API (so every preset keeps its own values and the OLED shows the
+# real number, not a guess).
+#   CC30 + param id   value = 64 + steps turned (63 = one click down, 65 = up)
+#   CC39              "send me this param's current value", value = param id
+# PiPedal also receives these on the same cable and ignores them (it only
+# binds CC20-27).
+#   CC40              "save the selected snapshot, then the preset" (value 127)
+CC_EDIT_BASE = 30
+CC_EDIT_REQUEST = 39
+CC_SAVE = 40
+EDIT_RELATIVE_ZERO = 64
+
+# Pi -> Pico: current value of one param, for the slider page.
+#   data = [0x04, param id, fraction 0-100, text bytes...]
+# fraction is where the value sits in the param's range (50 == centre).
+SYSEX_EDIT_VALUE_SUBTYPE = 0x04
+# Pi -> Pico: the result of a save request. data = [0x05, text bytes...]
+SYSEX_SAVE_RESULT_SUBTYPE = 0x05
+SAVE_PENDING_TEXT = "Saving..."
+
+# Param ids. pi_relay.py's table (pipedal_edit.py) maps each to a plugin
+# control; the Pico only needs the ids and the labels.
+PARAM_LEVEL = 0
+PARAM_EQ_FIRST = 1           # 1-7 = the seven Graphic EQ bands, low to high
+PARAM_PITCH = 8
+EQ_BAND_LABELS = ("100", "200", "400", "800", "1.6k", "3.2k", "6.4k")
+
+MENU_ROOT_ITEMS = ("Level", "EQ", "Pitch Shift", "Save")
+ROOT_LEVEL, ROOT_EQ, ROOT_PITCH, ROOT_SAVE = range(4)
+PAGE_ROOT = "root"
+PAGE_BANDS = "bands"
+PAGE_SLIDER = "slider"
+PAGE_SAVE = "save"
+
+
+class EditMenu:
+    """The RESET-switch settings menu: Level / EQ / Pitch Shift.
+
+    RESET opens it and then acts as "back one page" (from the first page it
+    closes the menu). The encoder scrolls the list pages and, on a slider
+    page, turns into value steps. Pushing the encoder selects an item; on a
+    slider it also goes back one page (the value is already live).
+
+    "Save" asks the relay to store the current sound in the selected snapshot
+    and then save the preset (what PiPedal's UI needs two clicks for), and
+    shows the result. Without it, edits only last until the next preset load.
+
+    Pure logic, like BrowseState: code.py feeds it presses and encoder
+    deltas, and sends whatever messages come back.
+    """
+
+    def __init__(self):
+        self.active = False
+        self.page = PAGE_ROOT
+        self.cursor = 0
+        self.param = None
+        # param id -> (text, fraction 0-100), as last reported by the relay
+        self.values = {}
+        self.save_text = SAVE_PENDING_TEXT
+
+    # ── navigation ──
+    def press_menu_key(self):
+        """The RESET switch: open the menu, or go back one page."""
+        if not self.active:
+            self.active = True
+            self.page = PAGE_ROOT
+            self.cursor = 0
+            self.param = None
+            return []
+        return self.back()
+
+    def back(self):
+        if self.page == PAGE_SAVE:
+            self.page = PAGE_ROOT
+            self.cursor = ROOT_SAVE
+        elif self.page == PAGE_SLIDER:
+            if self.param is not None and PARAM_EQ_FIRST <= self.param < PARAM_EQ_FIRST + len(EQ_BAND_LABELS):
+                self.page = PAGE_BANDS
+                self.cursor = self.param - PARAM_EQ_FIRST
+            else:
+                self.page = PAGE_ROOT
+                self.cursor = ROOT_LEVEL if self.param == PARAM_LEVEL else ROOT_PITCH
+            self.param = None
+        elif self.page == PAGE_BANDS:
+            self.page = PAGE_ROOT
+            self.cursor = ROOT_EQ
+        else:
+            self.active = False
+        return []
+
+    def cancel(self):
+        """Any other footswitch press: leave the menu entirely."""
+        self.active = False
+        self.param = None
+
+    def rotate(self, delta):
+        if self.page == PAGE_SLIDER:
+            steps = max(-63, min(63, delta))
+            return [("cc", CC_EDIT_BASE + self.param, EDIT_RELATIVE_ZERO + steps)]
+        if self.page == PAGE_SAVE:
+            return []
+        self.cursor = (self.cursor + delta) % len(self.items())
+        return []
+
+    def push(self):
+        """The encoder's push switch."""
+        if self.page in (PAGE_SLIDER, PAGE_SAVE):
+            return self.back()
+        if self.page == PAGE_BANDS:
+            return self._open_slider(PARAM_EQ_FIRST + self.cursor)
+        if self.cursor == ROOT_LEVEL:
+            return self._open_slider(PARAM_LEVEL)
+        if self.cursor == ROOT_EQ:
+            self.page = PAGE_BANDS
+            self.cursor = 0
+            return []
+        if self.cursor == ROOT_PITCH:
+            return self._open_slider(PARAM_PITCH)
+        self.page = PAGE_SAVE
+        self.save_text = SAVE_PENDING_TEXT
+        return [("cc", CC_SAVE, 127)]
+
+    def _open_slider(self, param):
+        self.page = PAGE_SLIDER
+        self.param = param
+        self.values.pop(param, None)   # don't show a stale number while waiting
+        return [("cc", CC_EDIT_REQUEST, param)]
+
+    # ── data from the relay ──
+    def set_value(self, param, text, fraction):
+        self.values[param] = (text, fraction)
+
+    def set_save_result(self, text):
+        self.save_text = text
+
+    # ── what to draw ──
+    def items(self):
+        return EQ_BAND_LABELS if self.page == PAGE_BANDS else MENU_ROOT_ITEMS
+
+    def title(self):
+        if self.page == PAGE_SAVE:
+            return "Save"
+        if self.page == PAGE_BANDS:
+            return "EQ band (Hz)"
+        if self.page == PAGE_SLIDER:
+            if self.param == PARAM_LEVEL:
+                return "Level"
+            if self.param == PARAM_PITCH:
+                return "Pitch Shift"
+            return "EQ {}".format(EQ_BAND_LABELS[self.param - PARAM_EQ_FIRST])
+        return "Settings"
+
+    def slider_value(self):
+        """(text, fraction 0-100) for the open slider; ("--", None) until the
+        relay has answered."""
+        return self.values.get(self.param, ("--", None))
+
 
 class FootswitchState:
     """Tracks mode + tuner/mute toggle; turns button presses into MIDI messages.

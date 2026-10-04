@@ -7,15 +7,19 @@
 # against the SSD1309 panel -- CONFIRMED WORKING on the real hardware
 # (2026-09-23), provided the SPI clock is slowed to 1 MHz (see init()).
 #
-# Three screens:
+# Five screens:
 #   - grid: 3x2 grid of preset OR snapshot names (mirrors the footswitch
 #     rows), with a border around whichever one is currently active. Used
 #     for both PRESET and SNAPSHOT mode -- code.py picks which data to pass.
 #   - bigtext: two big lines, reused for two different purposes that never
 #     show at the same time -- live tuner note+cents, and the rotary
 #     encoder's preset-browse preview (position + candidate name).
-# code.py picks between them based on FootswitchState.tuner_mute_on and
-# BrowseState.active.
+#   - menu list / slider: the RESET-switch settings menu (midi_logic.EditMenu).
+#     The list shows a title plus up to 7 items with a ">" cursor; the slider
+#     shows a title, the value as text, and a bar that grows left or right of
+#     centre (so +/- values read at a glance).
+# code.py picks between them based on FootswitchState.tuner_mute_on,
+# EditMenu.active and BrowseState.active.
 #
 # Needs in CIRCUITPY/lib/: adafruit_displayio_ssd1306, adafruit_display_text,
 # adafruit_display_shapes
@@ -23,6 +27,7 @@
 import board
 import busio
 import displayio
+import vectorio
 
 try:
     from fourwire import FourWire  # CircuitPython 9+
@@ -55,11 +60,27 @@ _grid_borders = None  # 3 Rects, one per column (Rect width/height are fixed
 _bigtext_group = None
 _bigtext_line1 = None
 _bigtext_line2 = None
+_menu_group = None
+_menu_title = None
+_menu_lines = None    # 7 item labels
+_slider_group = None
+_slider_title = None
+_slider_value = None
+_slider_bar = None    # vectorio.Rectangle, grows from the centre line
+
+MENU_MAX_ITEMS = 7
+BAR_X = 2
+BAR_W = 124
+BAR_Y = 46
+BAR_H = 14
+BAR_CENTRE = BAR_X + BAR_W // 2
 
 
 def init():
     global _display, _grid_group, _grid_labels, _grid_borders
     global _bigtext_group, _bigtext_line1, _bigtext_line2
+    global _menu_group, _menu_title, _menu_lines
+    global _slider_group, _slider_title, _slider_value, _slider_bar
 
     displayio.release_displays()
     spi = busio.SPI(clock=board.GP14, MOSI=board.GP15)
@@ -90,6 +111,30 @@ def init():
     _bigtext_line2 = label.Label(terminalio.FONT, text="", color=0xFFFFFF, x=2, y=40, scale=2)
     _bigtext_group.append(_bigtext_line1)
     _bigtext_group.append(_bigtext_line2)
+
+    _menu_group = displayio.Group()
+    _menu_title = label.Label(terminalio.FONT, text="", color=0xFFFFFF, x=2, y=4)
+    _menu_group.append(_menu_title)
+    _menu_lines = []
+    for _ in range(MENU_MAX_ITEMS):
+        line = label.Label(terminalio.FONT, text="", color=0xFFFFFF, x=2, y=0)
+        _menu_lines.append(line)
+        _menu_group.append(line)
+
+    _slider_group = displayio.Group()
+    _slider_title = label.Label(terminalio.FONT, text="", color=0xFFFFFF, x=2, y=5)
+    _slider_value = label.Label(terminalio.FONT, text="", color=0xFFFFFF, x=2, y=28, scale=2)
+    _slider_group.append(_slider_title)
+    _slider_group.append(_slider_value)
+    _slider_group.append(Rect(BAR_X, BAR_Y, BAR_W, BAR_H, fill=None, outline=0xFFFFFF, stroke=1))
+    palette = displayio.Palette(1)
+    palette[0] = 0xFFFFFF
+    _slider_bar = vectorio.Rectangle(pixel_shader=palette, width=1, height=BAR_H - 4,
+                                     x=BAR_CENTRE, y=BAR_Y + 2)
+    _slider_bar.hidden = True
+    _slider_group.append(_slider_bar)
+    # centre tick, drawn after the fill so it stays visible on top of it
+    _slider_group.append(Rect(BAR_CENTRE, BAR_Y - 3, 1, BAR_H + 6, fill=0xFFFFFF))
 
     _display.root_group = _grid_group
 
@@ -146,3 +191,39 @@ def show_browse(position_text, name):
     _display.root_group = _bigtext_group
     _bigtext_line1.text = position_text
     _bigtext_line2.text = (name or "")[:10]
+
+
+def show_menu_list(title, items, cursor):
+    """Settings-menu list page. A short list (the 3-item root) is spaced out;
+    a long one (the 7 EQ bands) is packed at one text line each. Roomy lists
+    top out at 4 items (the root menu)."""
+    _display.root_group = _menu_group
+    _menu_title.text = title
+    roomy = len(items) <= 4
+    first_y = 19 if roomy else 14
+    step = 13 if roomy else 7
+    for i, line in enumerate(_menu_lines):
+        if i < len(items):
+            line.text = ("> " if i == cursor else "  ") + items[i]
+            line.y = first_y + step * i
+        else:
+            line.text = ""
+
+
+def show_slider(title, value_text, fraction):
+    """Settings-menu slider page. fraction: 0-100 position in the control's
+    range (50 == centre), or None while the value hasn't arrived yet."""
+    _display.root_group = _slider_group
+    _slider_title.text = title
+    _slider_value.text = value_text
+    if fraction is None:
+        _slider_bar.hidden = True
+        return
+    half = BAR_W // 2 - 2
+    length = int(abs(fraction - 50) / 50 * half + 0.5)
+    if length < 1:
+        _slider_bar.hidden = True
+        return
+    _slider_bar.width = length
+    _slider_bar.x = BAR_CENTRE if fraction >= 50 else BAR_CENTRE - length
+    _slider_bar.hidden = False

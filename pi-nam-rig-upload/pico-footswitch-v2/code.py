@@ -21,6 +21,12 @@
 # encoder-push input shorts to GND, internal pull-ups, no external
 # resistors. Each LED gets its own series resistor to GND (§4).
 #
+# RESET (the back-left switch) is the settings-menu key: it opens
+# Level / EQ / Pitch Shift on the OLED, the encoder scrolls and (on a slider)
+# changes the value, and RESET steps back one page. The encoder only sends
+# relative steps -- pi_relay.py applies them to PiPedal and replies with the
+# value to show. See midi_logic.EditMenu.
+#
 # The OLED shows a 3x2 grid of preset or snapshot names (whichever mode the
 # footswitches are in, matching their physical layout), live tuner
 # note+cents while tuner_mute is on, or the preset-browse preview while
@@ -45,13 +51,18 @@ from adafruit_midi.system_exclusive import SystemExclusive
 from midi_logic import (
     FootswitchState,
     BrowseState,
+    EditMenu,
     CC_TUNER_NOTE,
     CC_TUNER_CENTS,
     SYSEX_MANUFACTURER_ID,
     SYSEX_SNAPSHOT_LIST_SUBTYPE,
     SYSEX_PRESET_LIST_SUBTYPE,
     SYSEX_FULL_PRESET_LIST_SUBTYPE,
+    SYSEX_EDIT_VALUE_SUBTYPE,
+    SYSEX_SAVE_RESULT_SUBTYPE,
     MODE_PRESET,
+    PAGE_SLIDER,
+    PAGE_SAVE,
 )
 from pitch import note_name
 import oled_display
@@ -126,6 +137,7 @@ led_onboard_off_at = 0.0
 
 state = FootswitchState()
 browse = BrowseState()
+menu = EditMenu()
 oled_display.init()
 oled_display.show_splash()
 time.sleep(2.0)
@@ -149,7 +161,15 @@ display_state = {
 
 
 def refresh_display():
-    if state.tuner_mute_on:
+    if menu.active and not state.tuner_mute_on:
+        if menu.page == PAGE_SLIDER:
+            text, fraction = menu.slider_value()
+            oled_display.show_slider(menu.title(), text, fraction)
+        elif menu.page == PAGE_SAVE:
+            oled_display.show_browse("Save", menu.save_text)
+        else:
+            oled_display.show_menu_list(menu.title(), menu.items(), menu.cursor)
+    elif state.tuner_mute_on:
         note = display_state["tuner_note"]
         oled_display.show_tuner(
             note_name(note) if note is not None else None,
@@ -196,6 +216,18 @@ def poll_midi_in():
             else:
                 display_state["preset_names"] = names
                 display_state["preset_highlight"] = highlight
+            refresh_display()
+
+        elif subtype == SYSEX_EDIT_VALUE_SUBTYPE and len(msg.data) >= 3:
+            menu.set_value(
+                msg.data[1],
+                bytes(msg.data[3:]).decode("ascii", "replace"),
+                msg.data[2],
+            )
+            refresh_display()
+
+        elif subtype == SYSEX_SAVE_RESULT_SUBTYPE:
+            menu.set_save_result(bytes(msg.data[1:]).decode("ascii", "replace"))
             refresh_display()
 
         elif subtype == SYSEX_FULL_PRESET_LIST_SUBTYPE:
@@ -274,6 +306,10 @@ while True:
         # below still runs as normal, it just also clears browse state.
         if kind != "encoder_sw":
             browse.cancel()
+        # Likewise any footswitch other than RESET (the menu key) and the
+        # encoder leaves the settings menu and then does its normal job.
+        if kind not in ("encoder_sw", "reset"):
+            menu.cancel()
 
         if kind == "row":
             send(state.press_row(arg))
@@ -282,12 +318,14 @@ while True:
         elif kind == "mode_snapshot":
             state.press_mode_snapshot()
         elif kind == "reset":
-            send(state.press_reset())
+            send(menu.press_menu_key())
         elif kind == "tuner_mute":
             send(state.press_tuner_mute())
         elif kind == "encoder_sw":
-            print("encoder push, browse active:", browse.active)
-            if browse.active:
+            print("encoder push, menu active:", menu.active, "browse active:", browse.active)
+            if menu.active:
+                send(menu.push())
+            elif browse.active:
                 send(browse.confirm())
         update_leds()
         refresh_display()   # e.g. tuner_mute toggling swaps which screen shows
@@ -298,7 +336,10 @@ while True:
         last_encoder_position = position
         last_browse_activity = now
         print("encoder position", position, "delta", delta)
-        browse.rotate(delta, len(display_state["browse_names"]), display_state["browse_current_index"])
+        if menu.active:
+            send(menu.rotate(delta))
+        else:
+            browse.rotate(delta, len(display_state["browse_names"]), display_state["browse_current_index"])
         refresh_display()
 
     if browse.active and (now - last_browse_activity) > BROWSE_TIMEOUT_S:

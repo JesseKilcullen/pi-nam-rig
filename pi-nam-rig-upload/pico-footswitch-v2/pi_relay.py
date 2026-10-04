@@ -19,18 +19,26 @@ presets/snapshots in PiPedal just works:
      safe/cheap) and forwards note number + cents offset to the Pico as
      two Control Change messages.
 
+  4. Settings menu (RESET switch + encoder). The Pico sends relative encoder
+     steps as CCs; this script applies them to the live plugin through
+     PiPedal's setControl (see pipedal_edit.py) and replies with the new
+     value for the Pico's slider screen. The menu's Save item makes it store
+     the sound in the selected snapshot and then save the preset.
+
 The Pico picks which grid to show locally (PRESET vs SNAPSHOT mode is
 whichever mode-select footswitch was pressed last) and caches both grids
 at all times so flipping mode redraws instantly with no round-trip.
 
-IMPORTANT — direction and why this can't clash with PiPedal's own MIDI
-input: this script only WRITES to the Pico (a brand new Pi -> Pico
-direction, going straight to code.py's midi.receive()). It never reads
-the Pico's MIDI-out stream (the one carrying footswitch presses to
-PiPedal) — the Pico decides locally, from its own tuner_mute_on state,
-whether to show the tuner screen or a names grid (see midi_logic.py).
-That sidesteps the question of whether two processes can safely share one
-ALSA MIDI read side.
+IMPORTANT — directions. Everything above (jobs 1-3) only WRITES to the
+Pico (Pi -> Pico, straight to code.py's midi.receive()); the Pico decides
+locally, from its own tuner_mute_on state, whether to show the tuner screen
+or a names grid (see midi_logic.py).
+
+Job 4 is the one place this script also READS the Pico's MIDI-out stream
+(the one carrying footswitch presses to PiPedal): it listens only for the
+settings-menu CCs below. That is a second ALSA sequencer subscriber next to
+PiPedal's own, which ALSA allows; PiPedal ignores these CCs (it only binds
+CC20-27).
 
 New wire conventions, on top of the CCs in pipedal-hardware-v2.md §3:
 
@@ -42,6 +50,15 @@ New wire conventions, on top of the CCs in pipedal-hardware-v2.md §3:
         data[0] = 0x01 (snapshot grid) or 0x02 (preset grid)
         data[1] = highlight index 0-5, or 0xFF for "none highlighted"
         data[2:] = up to 6 names, each 7-bit ASCII, 0x00-separated
+
+  Settings menu (Pico -> Pi, see midi_logic.py):
+  CC30-38  relative step for param 0-8   value = 64 + clicks (63 = one down)
+  CC39     "report this param's value"   value = param id
+  CC40     "save snapshot, then preset"  value = 127
+  CC27     tuner/mute switch (the Pico's footswitch CC, also bound by nothing in
+           PiPedal): 127 mutes the tuner plugin, 0 unmutes. See pipedal_edit.set_mute.
+  (Pi -> Pico) SysEx data = [0x04, param id, fraction 0-100, text bytes...]
+  (Pi -> Pico) SysEx data = [0x05, text bytes...]            save result
 
 Setup:
     pip install websockets mido python-rtmidi
@@ -68,6 +85,7 @@ try:
 except ImportError:
     sys.exit("mido not installed. Run: pip install mido python-rtmidi")
 
+from pipedal_edit import EditController, SAVE_FAILED_TEXT
 from pipedal_ws import (
     PiPedalClient,
     find_tuner_instance_id,
@@ -84,8 +102,15 @@ from midi_logic import (
     SYSEX_SNAPSHOT_LIST_SUBTYPE,
     SYSEX_PRESET_LIST_SUBTYPE,
     SYSEX_FULL_PRESET_LIST_SUBTYPE,
+    SYSEX_EDIT_VALUE_SUBTYPE,
+    SYSEX_SAVE_RESULT_SUBTYPE,
     GRID_HIGHLIGHT_NONE,
     BROWSE_MAX_PRESETS,
+    CC_EDIT_BASE,
+    CC_EDIT_REQUEST,
+    CC_SAVE,
+    CC_MUTE,
+    EDIT_RELATIVE_ZERO,
 )
 
 # 3 columns x ~42px/cell at scale=1 leaves room for about this many
@@ -143,6 +168,9 @@ class Relay:
         self.tuner_instance_id = None
         self.sub_handle = None
         self.client: PiPedalClient = None  # set once connected
+        self.edit: EditController = None   # set once connected
+        self.edit_queue: asyncio.Queue = None
+        self.loop = None
 
     def _send_name_list(self, subtype: int, index_byte: int, names, name_max_len: int):
         """Shared wire encoder for every '<subtype> <index byte> <0x00-separated
@@ -179,6 +207,53 @@ class Relay:
         self._send_name_list(SYSEX_FULL_PRESET_LIST_SUBTYPE, index_byte, full_names, BROWSE_NAME_MAX_LEN)
         print(f"browse list -> {len(full_names)} presets, current_index={current_index}")
 
+    def emit_edit_value(self, param_id: int, text: str, fraction: int):
+        data = [SYSEX_EDIT_VALUE_SUBTYPE, param_id, max(0, min(100, fraction))]
+        data += list(ascii_7bit(text, 12))
+        self.midi_out.send(mido.Message("sysex", data=[SYSEX_MANUFACTURER_ID] + data))
+
+    def emit_save_result(self, text: str):
+        data = [SYSEX_SAVE_RESULT_SUBTYPE] + list(ascii_7bit(text, 12))
+        self.midi_out.send(mido.Message("sysex", data=[SYSEX_MANUFACTURER_ID] + data))
+
+    async def refresh_edit_values(self):
+        """Re-read the live pedalboard: it reflects the loaded preset, the
+        selected snapshot and any control changed in the web UI."""
+        self.edit.load_pedalboard(await self.client.request("currentPedalboard"))
+
+    def queue_edit_message(self, msg):
+        """mido callback (runs on the MIDI thread): hand settings-menu CCs to
+        the asyncio side, in order, without touching PiPedal from here."""
+        if msg.type != "control_change":
+            return
+        if CC_EDIT_BASE <= msg.control < CC_EDIT_REQUEST:
+            self.loop.call_soon_threadsafe(
+                self.edit_queue.put_nowait, ("steps", msg.control - CC_EDIT_BASE, msg.value - EDIT_RELATIVE_ZERO))
+        elif msg.control == CC_EDIT_REQUEST:
+            self.loop.call_soon_threadsafe(self.edit_queue.put_nowait, ("report", msg.value, 0))
+        elif msg.control == CC_MUTE:
+            self.loop.call_soon_threadsafe(self.edit_queue.put_nowait, ("mute", 1 if msg.value > 0 else 0, 0))
+        elif msg.control == CC_SAVE and msg.value > 0:
+            self.loop.call_soon_threadsafe(self.edit_queue.put_nowait, ("save", 0, 0))
+
+    async def edit_worker(self):
+        while True:
+            kind, param_id, steps = await self.edit_queue.get()
+            try:
+                if kind == "report":
+                    await self.refresh_edit_values()
+                    self.edit.report(param_id)
+                elif kind == "save":
+                    self.emit_save_result(await self.edit.save())
+                elif kind == "mute":
+                    await self.edit.set_mute(param_id == 1)
+                else:
+                    await self.edit.apply_steps(param_id, steps)
+            except Exception as e:
+                print(f"settings menu ({kind} {param_id}) failed: {e!r}")
+                if kind == "save":
+                    self.emit_save_result(SAVE_FAILED_TEXT)
+
     def send_tuner(self, freq_value: float):
         # FREQ is a fractional MIDI note number, not Hz -- see pitch.py.
         result = midi_note_to_note_cents(freq_value)
@@ -191,6 +266,9 @@ class Relay:
 
     async def on_pedalboard_changed(self, pedalboard: dict):
         self.pedalboard = pedalboard
+        if self.edit is not None:
+            self.edit.load_pedalboard(pedalboard)
+            await self.edit.apply_mute()   # a new preset must still honour the tuner switch
         self.send_snapshot_grid()
         # A preset change means a different preset is now selected, so the
         # preset grid's highlight needs refreshing too. Re-requesting
@@ -202,6 +280,8 @@ class Relay:
     async def on_selected_snapshot_changed(self, selected_snapshot: int):
         self.pedalboard["selectedSnapshot"] = selected_snapshot
         self.send_snapshot_grid()
+        if self.edit is not None:
+            await self.refresh_edit_values()
 
     async def on_presets_changed(self, presets_response: dict):
         grid_names, highlight = build_preset_grid(presets_response)
@@ -249,11 +329,15 @@ class Relay:
             await self.on_presets_changed(body)
         elif message_name == "onMonitorPortOutput":
             self.send_tuner(body["value"])
+        elif message_name == "onControlChanged" and self.edit is not None and isinstance(body, dict):
+            self.edit.on_control_changed(body["instanceId"], body["symbol"], body["value"])
 
 
-async def run(host: str, port: int, midi_out_port_name: str, usb_product: str):
+async def run(host: str, port: int, midi_out_port_name: str, midi_in_port_name: str, usb_product: str):
     url = f"ws://{host}:{port}/pipedal"
     relay = Relay(midi_out_port_name)
+    relay.loop = asyncio.get_running_loop()
+    relay.edit_queue = asyncio.Queue()
 
     print(f"Connecting to {url} ...")
     async with websockets.connect(url) as ws:
@@ -263,6 +347,10 @@ async def run(host: str, port: int, midi_out_port_name: str, usb_product: str):
         client_id = await client.request("hello")
         print(f"Connected. clientId={client_id}")
 
+        relay.edit = EditController(client, client_id, relay.emit_edit_value)
+        edit_task = asyncio.ensure_future(relay.edit_worker())
+        midi_in = mido.open_input(midi_in_port_name, callback=relay.queue_edit_message)
+
         pedalboard = await client.request("currentPedalboard")
         await relay.on_pedalboard_changed(pedalboard)
 
@@ -270,6 +358,8 @@ async def run(host: str, port: int, midi_out_port_name: str, usb_product: str):
         ws_closed = asyncio.ensure_future(client.run_forever())
         pico_gone = asyncio.ensure_future(wait_for_pico_reconnect(usb_product))
         done, _ = await asyncio.wait({ws_closed, pico_gone}, return_when=asyncio.FIRST_COMPLETED)
+        edit_task.cancel()
+        midi_in.close()
         if pico_gone in done:
             print("Pico disconnected/reconnected on USB -- exiting so systemd restarts the relay and resends names.")
         else:
@@ -303,11 +393,15 @@ def main():
     if len(matches) > 1:
         sys.exit(f"Ambiguous match for {args.midi_port!r}: {matches}")
 
+    in_matches = [n for n in mido.get_input_names() if args.midi_port.lower() in n.lower()]
+    if len(in_matches) != 1:
+        sys.exit(f"Expected exactly one MIDI input port matching {args.midi_port!r}, found {in_matches}.")
+
     print(f"Found {matches[0]!r}; waiting {PICO_BOOT_WAIT_SECONDS:.0f}s for the Pico to finish booting ...")
     time.sleep(PICO_BOOT_WAIT_SECONDS)
 
     try:
-        asyncio.run(run(args.host, args.port, matches[0], args.midi_port))
+        asyncio.run(run(args.host, args.port, matches[0], in_matches[0], args.midi_port))
     except KeyboardInterrupt:
         print("\nStopped.")
         return
