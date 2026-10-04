@@ -91,14 +91,21 @@ def snapshot_value(item):
     }
 
 
+def chain_items(chain):
+    """The plugins in a split's top/bottom chain. PiPedal writes a chain as a
+    plain list (in the bank file and over the websocket); a {"items": [...]}
+    wrapper is accepted too."""
+    if isinstance(chain, dict):
+        return chain.get("items") or []
+    return chain or []
+
+
 def walk_items(items):
     """Every plugin in a pedalboard, including those inside Split chains."""
     for item in items or []:
         yield item
         for key in ("topChain", "bottomChain"):
-            sub = item.get(key)
-            if isinstance(sub, dict):
-                yield from walk_items(sub.get("items"))
+            yield from walk_items(chain_items(item.get(key)))
 
 
 class EditController:

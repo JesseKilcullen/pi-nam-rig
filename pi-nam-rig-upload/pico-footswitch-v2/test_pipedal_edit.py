@@ -13,6 +13,7 @@ from pipedal_edit import (
     SAVED_TEXT,
     SAVE_FAILED_TEXT,
     snapshot_value,
+    walk_items,
     GRAPHIC_EQ_URI,
     PITCH_SHIFT_URI,
     PARAMS,
@@ -44,9 +45,9 @@ def pedalboard(level=0.0, band_400=0.0, semitones=0.0, power=0.0, with_plugins=T
             {"key": "semitones", "value": semitones}, {"key": "power", "value": power}]})
         # A split chain, to prove nested plugins are found too.
         items.append({"instanceId": 3, "uri": "uri://two-play/pipedal/pedalboard#Split", "controlValues": [],
-                      "topChain": {"items": [{"instanceId": 4, "uri": GRAPHIC_EQ_URI, "controlValues": [
-                          {"key": "level", "value": level}, {"key": "gain_400hz", "value": band_400}]}]},
-                      "bottomChain": {"items": []}})
+                      "topChain": [{"instanceId": 4, "uri": GRAPHIC_EQ_URI, "controlValues": [
+                          {"key": "level", "value": level}, {"key": "gain_400hz", "value": band_400}]}],
+                      "bottomChain": []})
     return {"items": items}
 
 
@@ -149,6 +150,21 @@ class TestApplySteps(unittest.TestCase):
                          {"clientId": 22, "instanceId": 4, "symbol": "level", "value": 0.5}))
 
 
+class TestWalkItems(unittest.TestCase):
+    def test_finds_plugins_inside_split_chains_in_pipedals_list_shape(self):
+        items = [{"instanceId": 1, "topChain": [{"instanceId": 2}, {"instanceId": 3}],
+                  "bottomChain": [{"instanceId": 4, "topChain": [{"instanceId": 5}]}]}]
+        self.assertEqual([i["instanceId"] for i in walk_items(items)], [1, 2, 3, 4, 5])
+
+    def test_also_accepts_a_wrapped_chain(self):
+        items = [{"instanceId": 1, "topChain": {"items": [{"instanceId": 2}]}, "bottomChain": {"items": []}}]
+        self.assertEqual([i["instanceId"] for i in walk_items(items)], [1, 2])
+
+    def test_a_preset_with_no_split_or_no_items(self):
+        self.assertEqual(list(walk_items(None)), [])
+        self.assertEqual([i["instanceId"] for i in walk_items([{"instanceId": 7}])], [7])
+
+
 class TestReportAndRefresh(unittest.TestCase):
     def test_report_sends_the_current_value(self):
         h = Harness(level=-4.5)
@@ -225,7 +241,7 @@ def saveable(selected=1, modified=True):
         item.setdefault("isEnabled", True)
         item.setdefault("lv2State", [False, {}])
         item.setdefault("pathProperties", {})
-    pb["items"][2]["topChain"]["items"][0].update(isEnabled=True, lv2State=[False, {}], pathProperties={})
+    pb["items"][2]["topChain"][0].update(isEnabled=True, lv2State=[False, {}], pathProperties={})
     pb["snapshots"] = [
         {"name": "Clean", "color": "blue", "isModified": False, "values": [{"instanceId": 1, "stale": True}]},
         {"name": "Drive", "color": "red", "isModified": modified, "values": [{"instanceId": 1, "stale": True}]},
