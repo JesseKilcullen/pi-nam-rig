@@ -20,9 +20,10 @@ preset/snapshot name and a tuner.
 
 | Folder | Contents |
 |---|---|
-| `pico-footswitch-v2/` | Pico firmware (CircuitPython) and the Pi-side relay |
+| `pico-footswitch-v2/` | Pico firmware (CircuitPython), the Pi-side relay, and the RESET-switch settings menu (Level / EQ / Pitch Shift / Save) |
+| `lv2-pitch-shift/` | Pitch-shift LV2 plugin for PiPedal (TONE3000's engine, plain C++) |
 | `pi-scripts/` | Pi setup and probe scripts |
-| `generator-scripts/` | Preset bank generator |
+| `generator-scripts/` | Preset bank generator, plus scripts to change/compare the live bank in place |
 | `presets-reference/` | Rig plan, preset tables, how-tos |
 | `bank-backups/` | PiPedal bank exports |
 | `wiring/` | Wiring layout and reference |

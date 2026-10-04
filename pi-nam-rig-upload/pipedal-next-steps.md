@@ -1,6 +1,6 @@
 # PiPedal Rig — Status & Next Steps
 
-**Last updated:** 2026-09-23
+**Last updated:** 2026-10-04
 
 This supersedes the phase-by-phase framing in `presets-reference/pipedal-nam-rig-plan.md` / `archive/pipedal-phase2.md`
 for tracking *where the build actually is*. Those files still hold the reference detail (signal
@@ -9,16 +9,71 @@ what's left.
 
 ## 0. Pick up here next session
 
-**As of 2026-09-23 the footswitch controller is built, wired and working end-to-end** — footswitches,
-mode switches, TUNER/MUTE switch, rotary encoder (turn + push), OLED, and the Pi-side relay feeding
-it live preset/snapshot names. Details of that bring-up: `pico-footswitch-v2/OLED-BLANK-HANDOFF.md`.
+**As of 2026-10-04 the rig has a pitch shifter, a footswitch settings menu and a tuner mute, all
+working on the hardware.** The footswitch controller itself (switches, encoder, OLED, relay) has been
+working end-to-end since 2026-09-23 — bring-up details: `pico-footswitch-v2/OLED-BLANK-HANDOFF.md`.
 Network/hotspot/login details: [`QUICK-REFERENCE.md`](./QUICK-REFERENCE.md).
 
+### What was added 2026-10-04
+
+- **Pitch Shift plugin** (`lv2-pitch-shift/`). TONE3000's new pitch shifter (±24 semitones, low
+  latency) ported to plain C++ as its own LV2: TONE3000's own LV2 build never shows up in PiPedal
+  because PiPedal **skips plugins whose controls are LV2 patch parameters** ("Has unsupported patch
+  parameters"). Bit-identical to the original (`test/compare.sh`). Installed at
+  `/usr/lib/lv2/PitchShiftTone3000.lv2`; rebuild/install: `make && sudo make install`, then restart
+  `pipedald`. It is in all 8 presets (before the first amp), **powered off by default** (a powered-off
+  shifter is a bit-exact, zero-latency passthrough). Reported latency 11/16/21/31 ms for the
+  20/30/40/60 ms Buffer; attacks arrive a few ms late because of the onset re-sync.
+- **Graphic EQ** (TooB Graphic Eq: seven bands 100 Hz-6.4 kHz at ±15 dB, plus Level ±30 dB) in all
+  8 presets, placed right after each preset's main EQ and **before** the chorus/delay/reverb.
+  Not at the very end: it is mono, and **PiPedal gives a mono plugin only the left channel of a
+  stereo signal**, so after a stereo reverb it would collapse the reverb's width.
+- **Settings menu on the RESET switch** (formerly "preset 1 + snapshot 1"). RESET opens
+  `Level / EQ / Pitch Shift / Save`; the encoder scrolls and pushes to select; Level and Pitch show a
+  ± slider (0.5 dB / 1 semitone per click); EQ lists the seven bands first; RESET goes back one page
+  and any other footswitch leaves the menu. Pitch switches itself on whenever the shift is non-zero.
+  - **Save** does what PiPedal's UI needs two clicks for: store the live sound in the selected
+    snapshot (`setSnapshots`), then save the preset (`saveCurrentPreset`). Without a save, an edit
+    only marks the snapshot "modified" and the next preset load throws it away. It waits for PiPedal
+    to confirm the snapshot is stored before saving (saving too early makes PiPedal clear the
+    snapshot selection) and re-selects it if that still happens.
+  - The encoder sends only **relative steps**; `pi_relay.py` applies them to the loaded preset's
+    plugins through PiPedal's `setControl` (`pipedal_edit.py`), so every preset keeps its own
+    settings and the OLED shows the real value. Wire protocol, Pico → Pi: CC30-38 steps (value
+    64 ± clicks), CC39 "report this param", CC40 save; Pi → Pico SysEx 0x04 (a param's value) and
+    0x05 (save result). Logic is plain Python with tests: `midi_logic.EditMenu`,
+    `pipedal_edit.py` (`cd pico-footswitch-v2 && python3 -m unittest test_midi_logic test_pipedal_edit test_pitch test_pipedal_ws`, 103 tests).
+  - The relay now also **reads** the Pico's MIDI (a second ALSA subscriber next to PiPedal's; fine).
+- **Tuner mute.** The TUNER/MUTE switch (CC27) mutes the tuner plugin's output (it is first in
+  every chain, so everything after it). Done in the relay with absolute on/off, **not** PiPedal MIDI
+  bindings (a binding can only toggle and has to be added per preset). A snapshot never stores the
+  tuner muted. **Known quirk, accepted:** changing preset unmutes it (the relay re-applies the
+  mute on a preset load but PiPedal's rebuild seems to overwrite it), leaving the Pico's screen on
+  "tuner" until the switch is pressed again.
+
+### Working on this rig — things that bite
+
+- **The live bank is the source of truth, and the generator now matches it** (2026-10-04: all five
+  by-ear edits folded in; `python3 generator-scripts/check-bank-diff.py` on the Pi reports all 8
+  presets identical). Re-run that before any regenerate; if it lists differences, those are edits
+  a regenerate would overwrite. To change the live bank without regenerating, use an in-place
+  additive script like `add-menu-plugins-to-bank.py` / `fill-missing-snapshot-values.py` (both back
+  up, check the result and are idempotent).
+- **PiPedal writes a split's inner plugins as a plain list** (`topChain`/`bottomChain`), in the
+  bank file and over the websocket. Code that walks a pedalboard must handle that (a Save bug on
+  preset 6 came from assuming a `{"items": [...]}` wrapper).
+- **A snapshot with no stored value for a plugin leaves that plugin alone on recall.** Snapshots
+  must carry a value for every plugin or it stops following snapshot changes.
+- **Sudo is the user's.** Jesse runs sudo lines himself in a normal terminal (a Claude `!` command
+  has no TTY). Pico firmware is pushed by mounting the drive (`sudo mount -o uid=1000,gid=1000 -L
+  CIRCUITPY /mnt/circuitpy`), copying `code.py midi_logic.py oled_display.py`, then `sudo umount`.
+  The relay runs as `jesse`: `kill $(systemctl show pipedal-tuner-relay -p MainPID --value)` and
+  systemd restarts it with the new code, no sudo needed.
+- **Do not test Save (or toggle controls) on the live preset while Jesse is playing**: Save stores
+  whatever is currently live.
+
 **What's left:**
-1. **MUTE binding in PiPedal** — per preset, on TooB Tuner's `MUTE` port, CC27, "Toggle on any
-   value", in all 6 footswitch presets (plus Muse/Opeth if wanted). No global version exists. The
-   Pico already sends CC26/CC27 correctly (confirmed on serial) — this is UI config only.
-2. **Finish the hotspot** — configured (network `pipedal`, channel 6, trigger "No ethernet
+1. **Finish the hotspot** — configured (network `pipedal`, channel 6, trigger "No ethernet
    connection"). It comes up and a laptop joined it, but **the UI didn't load**. Next steps
    (find the real gateway IP with `ipconfig`, check for a 169.254 address, try a phone) are in
    [`QUICK-REFERENCE.md`](./QUICK-REFERENCE.md).
@@ -29,13 +84,14 @@ Network/hotspot/login details: [`QUICK-REFERENCE.md`](./QUICK-REFERENCE.md).
    reads 2 low (open D string shows "D1"; the plugin reports ~26 for it rather than MIDI 50).
    If it ever matters, drop the octave in `pitch.note_name` on the Pico (PiPedal's own UI shows
    the letter only).
-3. **Remaining on-hardware checks** (§2.6): encoder Browse
-   on the Pi (starts near current preset, push loads it + snapshot 1, footswitch or 3 s idle
-   cancels, presets 7-8 reachable); RESET switch.
-4. **Generator-script commit** below — may already have been done since 2026-09-12; check with
-   `--dry-run` before running.
+2. **Remaining on-hardware checks** (§2.6): encoder Browse (starts near the current preset, push
+   loads it + snapshot 1, footswitch or 3 s idle cancels, presets 7-8 reachable). Preset 1 + snapshot 1
+   is no longer on the RESET switch — it is preset mode → switch 1, or encoder Browse.
+3. **Optional:** the mute surviving a preset change (re-apply it a moment after the load); remove
+   the unusable `/usr/lib/lv2/TONE3000.lv2` (`sudo rm -r`); `find_tuner_instance_id` in
+   `pipedal_ws.py` still assumes the dict chain shape (harmless, the tuner is never inside a split).
 
-### Earlier (2026-09-12) — generator-script commit
+### Earlier (2026-09-12) — generator-script commit (DONE 2026-10-04: see above; kept for history — do not run the commands below blindly, run `check-bank-diff.py` first)
 
 No data at risk from this — every by-ear edit below is
 already saved to the live bank file on disk (PiPedal auto-persists snapshot value changes as you
