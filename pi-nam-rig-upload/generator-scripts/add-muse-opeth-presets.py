@@ -48,6 +48,7 @@ tuner, gate, input_stage = kraken.tuner, kraken.gate, kraken.input_stage
 nam, pedal, cab_ir = kraken.nam, kraken.pedal, kraken.cab_ir
 eq3, peq, chorus, delay, freeverb = (
     kraken.eq3, kraken.peq, kraken.chorus, kraken.delay, kraken.freeverb)
+eq3_stereo = kraken.eq3_stereo
 snapshot, rel = kraken.snapshot, kraken.rel
 PEDAL, AMP = kraken.PEDAL, kraken.AMP
 GATE, EQ3, PEQ, DELAY, FREEVERB, CHORUS = (
@@ -106,6 +107,11 @@ def _opeth_items():
         # hiCut 10.3, not 12 -- level-match/EQ pass, 2026-09-10.
         peq(95, 400, -2, 1.2, 2.5, 1, 10.3),
         delay(320, 18, 6),
+        # By-ear addition, folded in from the live bank (2026-10-04): a flat
+        # stereo 3-band EQ used purely as a +12.8 dB level stage after the
+        # delay. It is the same in every snapshot (the live bank only had its
+        # value stored in Clean Prog; here it is explicit in all five).
+        eq3_stereo(gain=12.833334),
         freeverb(0.10, 0.30),
     ]
 
@@ -135,6 +141,9 @@ def snapshots_for(name, items):
                       "controls": {"inputGain": -14, "outputGain": 0}},
                 CHORUS: {"controls": {"dryWet": 0.55}},
                 FREEVERB: {"controls": {"dryWet": 0.30, "roomSize": 0.55}},
+                # By-ear edit, folded in from the live bank (2026-10-04): the
+                # clean alt needed a big level lift, done on the 3-band EQ's gain.
+                EQ3: {"controls": {"gain": 11.083333}},
             }),
             snapshot("Big Ambient", "teal", items, {
                 DELAY: {"controls": {"delay": 480, "feedback": rel(+14),

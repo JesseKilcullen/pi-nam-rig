@@ -58,6 +58,7 @@ NAMES = {
     "toob-freeverb": "TooB Freeverb",
     "toob-convolution-reverb-stereo": "TooB Convolution Reverb (Stereo)",
     "toob-graphiceq": "TooB Graphic Eq",
+    "toob-three-band-eq-stereo": "TooB 3 Band EQ (Stereo)",
     PITCH_URI: "Pitch Shift (TONE3000 engine)",
 }
 
@@ -154,6 +155,14 @@ def pitch_shift(semitones=0):
     return item(PITCH_URI, {
         "semitones": semitones, "step": 1, "tonality": 20000, "window": 1,
         "power": 0, "latency": 0,
+    })
+
+
+def eq3_stereo(gain, bass=5, mid=5, treble=5):
+    """TooB 3 Band EQ (Stereo). Used flat as a plain level stage (see Opeth)."""
+    return item("toob-three-band-eq-stereo", {
+        "bass": bass, "control": 0, "gain": gain, "in": 0, "inR": 0,
+        "mid": mid, "notify": 0, "out": 0, "outR": 0, "treble": treble,
     })
 
 
@@ -293,10 +302,12 @@ def flatten(items):
 
 def short_name(uri):
     """The key snapshot selectors use. LV2 plugins are P-prefixed; the Split
-    node is not, so it selects as ("Split", 0). The pitch shifter's key is
-    "mono" (its URI fragment); nothing selects it."""
+    node is not, so it selects as ("Split", 0). The pitch shifter selects as
+    ("pitch-shift", 0): its URI fragment is just "mono"."""
     if uri.startswith(P):
         return uri[len(P):]
+    if uri == PITCH_URI:
+        return "pitch-shift"
     return uri.rsplit("#", 1)[-1]
 
 
@@ -528,6 +539,9 @@ AMP = ("toob-nam", 1)      # the amp capture in presets that have a pedal
 AMP0 = ("toob-nam", 0)     # the amp capture in presets that don't
 GATE = ("toob-noise-gate", 0)
 EQ3 = ("toob-three-band-eq", 0)
+EQ3S = ("toob-three-band-eq-stereo", 0)
+GEQ = ("toob-graphiceq", 0)
+PITCH = ("pitch-shift", 0)
 PEQ = ("toob-parametric-eq", 0)
 DELAY = ("toob-delay", 0)
 FREEVERB = ("toob-freeverb", 0)
@@ -553,7 +567,11 @@ def snapshots_for(name, items):
     an arbitrary one."""
     if name == "1 Clean":
         s = [
-            snapshot("Clean", "green", items),
+            # By-ear edit, folded in from the live bank (2026-10-04): a touch
+            # of 800 Hz and a level lift on the Graphic EQ for the home sound.
+            snapshot("Clean", "green", items, {
+                GEQ: {"controls": {"gain_800hz": 4, "level": 8}},
+            }),
             # Inserted at slot 2, not appended, because this file's own rule
             # is most-useful-first so a 3-switch layout degrades gracefully
             # -- a drive toggle on a clean amp beats "Wash". Nothing is bound
@@ -585,7 +603,11 @@ def snapshots_for(name, items):
             # values and the preset opens on it (selectedSnapshot 0). So the
             # ITEM stays Fender and the other three snapshots override the
             # capture to the Kraken, rather than the other way round.
-            snapshot("Glass", "lightBlue", items),
+            # By-ear edit, folded in from the live bank (2026-10-04): the
+            # 3-band EQ's gain raised to 5.58 (was the -2 trim) for Glass only.
+            snapshot("Glass", "lightBlue", items, {
+                EQ3: {"controls": {"gain": 5.583333}},
+            }),
             # Kraken Gain-I G5 -- the lowest-gain Gain-I capture that
             # exists (the pack runs G5/G7/G8/G10, each with a TrebleBoost
             # variant). inputGain -14 rather than the Fender's -12 keeps it
@@ -692,7 +714,11 @@ def snapshots_for(name, items):
             }
 
         s = [
-            snapshot("Massive", "teal", items),
+            # By-ear edit, folded in from the live bank (2026-10-04): saved
+            # with the pitch shifter on, down 5 semitones.
+            snapshot("Massive", "teal", items, {
+                PITCH: {"controls": {"semitones": -5, "power": 1}},
+            }),
             # Gain-I G5 -> Gain-I G7 -> Gain-II G8. The channel change to
             # Gain-II is the last step, rather than swapping the clean amp
             # out, which was too abrupt a jump.
