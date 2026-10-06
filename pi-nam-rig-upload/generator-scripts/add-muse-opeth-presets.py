@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Add "7 Muse" and "8 Opeth - Ghost Reveries" to Default Bank, on top of the
+Add "7 Muse", "8 Opeth - Ghost Reveries" and "9 Test" (an experiment preset
+modelled on Massive, with every effect) to Default Bank, on top of the
 existing six (which are rebuilt unchanged except the noise-gate threshold fix
 already applied in build-kraken-presets.py).
 
@@ -49,6 +50,7 @@ nam, pedal, cab_ir = kraken.nam, kraken.pedal, kraken.cab_ir
 eq3, peq, chorus, delay, freeverb = (
     kraken.eq3, kraken.peq, kraken.chorus, kraken.delay, kraken.freeverb)
 eq3_stereo = kraken.eq3_stereo
+tremolo, split = kraken.tremolo, kraken.split
 snapshot, rel = kraken.snapshot, kraken.rel
 PEDAL, AMP = kraken.PEDAL, kraken.AMP
 GATE, EQ3, PEQ, DELAY, FREEVERB, CHORUS = (
@@ -56,6 +58,12 @@ GATE, EQ3, PEQ, DELAY, FREEVERB, CHORUS = (
     kraken.CHORUS)
 NAM_DIR, IR_JCM800, P = kraken.NAM_DIR, kraken.IR_JCM800, kraken.P
 BIGMUFF, CLEAN_CAP = kraken.BIGMUFF, kraken.CLEAN_CAP
+KRAKEN, BLUESDRIVER, IR_1960TV = kraken.KRAKEN, kraken.BLUESDRIVER, kraken.IR_1960TV
+CONVERB, SPLIT = kraken.CONVERB, kraken.SPLIT
+TREM = ("toob-tremolo", 0)
+# "9 Test" has a gain pedal and an amp in the top chain and a clean amp in the
+# bottom one, so its three toob-nam instances flatten in this order:
+TEST_PEDAL, TEST_TOP, TEST_BOT = ("toob-nam", 0), ("toob-nam", 1), ("toob-nam", 2)
 
 MUSE_AMP = NAM_DIR + "/JCM_800_2203_OD8008_Boosted_Amp_Gain_7.nam"
 MUSE_FUZZ = BIGMUFF + "/Big Muff Pi T5 S9.nam"
@@ -107,12 +115,45 @@ def _opeth_items():
         # hiCut 10.3, not 12 -- level-match/EQ pass, 2026-09-10.
         peq(95, 400, -2, 1.2, 2.5, 1, 10.3),
         delay(320, 18, 6),
-        # By-ear addition, folded in from the live bank (2026-10-04): a flat
-        # stereo 3-band EQ used purely as a +12.8 dB level stage after the
-        # delay. It is the same in every snapshot (the live bank only had its
-        # value stored in Clean Prog; here it is explicit in all five).
-        eq3_stereo(gain=12.833334),
         freeverb(0.10, 0.30),
+    ]
+
+
+def _test_items():
+    """9 Test: an experiment preset modelled on "6 Massive" -- two amp chains
+    in parallel (a Kraken behind a gain pedal on top, a clean Tweed
+    underneath) and every effect in the bank (chorus, tremolo, delay,
+    reverb). Pitch Shift and Graphic EQ come from with_menu_plugins, like
+    every other preset. Chain, once those are in:
+      tuner > gate > input stage > pitch shift >
+      SPLIT[ gain pedal (off at home) > Kraken G5 | Tweed clean ] >
+      cab IR > parametric EQ > graphic EQ > chorus > tremolo (off at home) >
+      delay > convolution reverb"""
+    return [
+        tuner(),
+        gate(-55, hold=90, release=260, reduction=-45, attack=3,
+             hysteresis=-12),
+        input_stage(trim=0, locut=85),
+        split(
+            # the pedal drives the Kraken only; the Tweed stays clean
+            [pedal(BLUESDRIVER, input_gain=-10, output_gain=-4,
+                   enabled=False, threaded=True),
+             nam(KRAKEN + "/Kraken_Gain-I_G5.nam", -14, 5, 5.5, 5.5,
+                 threaded=True)],
+            [nam(CLEAN_CAP, -12, 5.5, 5, 5.5, output_gain=-3, threaded=True)],
+            split_type=kraken.SPLIT_MIX, mix=0),
+        cab_ir(IR_1960TV),
+        peq(85, 400, -2, 1.0, 2.5, 1, 11, gain=2),
+        # Chorus, tremolo and delay are OFF in Clean (the home snapshot); the
+        # other snapshots switch them on. The values below are by-ear
+        # settings from the live bank (2026-10-06): they are what
+        # "Fascination" plays with.
+        chorus(0.25, 0.74, 0.5933333, enabled=False),
+        tremolo(rate=5.0, depth=0.2133333, enabled=False),
+        delay(590.7693, 36.66667, 42.66667, enabled=False),
+        # Freeverb, not Massive's 2.9 s convolution reverb: that one's worker
+        # threads were ~40% of this preset's CPU and the Pi throttled.
+        freeverb(0.3033333, 0.5, damping=0.14),
     ]
 
 
@@ -123,7 +164,11 @@ _orig_snapshots_for = kraken.snapshots_for
 def presets():
     return _orig_presets() + [
         ("7 Muse", _muse_items()),
-        ("8 Opeth - Ghost Reveries", _opeth_items()),
+        # Master Output Volume -3 and no stereo level stage, by ear (live
+        # bank, 2026-10-06) -- replaces the +12.8 dB 3-band EQ stage the
+        # 2026-10-04 fold-in had added after the delay.
+        ("8 Opeth - Ghost Reveries", _opeth_items(), -3),
+        ("9 Test", _test_items()),
     ]
 
 
@@ -158,7 +203,11 @@ def snapshots_for(name, items):
         ]
     elif name == "8 Opeth - Ghost Reveries":
         s = [
-            snapshot("Chug", "red", items),
+            snapshot("Chug", "red", items, {
+                # by ear, live bank 2026-10-06: -2, not the -1 the other
+                # snapshots carry
+                AMP: {"controls": {"outputGain": -2}},
+            }),
             snapshot("Buzzsaw", "green", items, {
                 PEDAL: {"enabled": True},
             }),
@@ -182,6 +231,39 @@ def snapshots_for(name, items):
                 DELAY: {"controls": {"delay": 420, "feedback": rel(+10),
                                      "level": rel(+14)}},
                 FREEVERB: {"controls": {"dryWet": 0.30, "roomSize": 0.55}},
+            }),
+        ]
+    elif name == "9 Test":
+        # Slot 1 is the home sound ("Clean": every effect off but the
+        # reverb) and slot 6 is "Fascination", the by-ear all-effects sound
+        # -- put there on request, 2026-10-06. Pedal/Trem/Wash/Dry predate
+        # that and keep the original generator values (depth 0.5, 420 ms).
+        def fx(chorus_on, trem_on, delay_on, dry_wet=0.4, delay_ms=420,
+               feedback=30, level=20, **extra):
+            return {
+                CHORUS: {"enabled": chorus_on,
+                         "controls": {"depth": 0.5, "dryWet": dry_wet}},
+                TREM: {"enabled": trem_on, "controls": {"depth": 0.5}},
+                DELAY: {"enabled": delay_on,
+                        "controls": {"delay": delay_ms, "feedback": feedback,
+                                     "level": level}},
+                **extra,
+            }
+
+        s = [
+            snapshot("Clean", "grey", items),
+            snapshot("Pedal", "amber", items,
+                     fx(True, False, True) | {TEST_PEDAL: {"enabled": True}}),
+            snapshot("Trem", "purple", items, fx(True, True, True)),
+            snapshot("Wash", "lightBlue", items,
+                     fx(True, False, True, dry_wet=0.6, delay_ms=520,
+                        feedback=42, level=35)),
+            snapshot("Dry", "blueGrey", items, fx(False, False, False)),
+            snapshot("Fascination", "teal", items, {
+                CHORUS: {"enabled": True},
+                TREM: {"enabled": True},
+                DELAY: {"enabled": True},
+                FREEVERB: {"controls": {"dryWet": 0.75}},
             }),
         ]
     else:

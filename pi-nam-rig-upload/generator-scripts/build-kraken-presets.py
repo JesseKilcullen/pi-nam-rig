@@ -58,6 +58,7 @@ NAMES = {
     "toob-freeverb": "TooB Freeverb",
     "toob-convolution-reverb-stereo": "TooB Convolution Reverb (Stereo)",
     "toob-graphiceq": "TooB Graphic Eq",
+    "toob-tremolo": "TooB Tremolo (Stereo)",
     "toob-three-band-eq-stereo": "TooB 3 Band EQ (Stereo)",
     PITCH_URI: "Pitch Shift (TONE3000 engine)",
 }
@@ -383,15 +384,25 @@ def peq(locut, lmf_c, lmf_lvl, lmf_q, hmf_c_khz, hmf_lvl, hicut_khz, gain=0):
     })
 
 
-def chorus(rate, depth, dry_wet):
+def chorus(rate, depth, dry_wet, enabled=True):
     return item("toob-chorus",
                 {"depth": depth, "dryWet": dry_wet, "in": 0, "out": 0,
-                 "outr": 0, "rate": rate})
+                 "outr": 0, "rate": rate}, enabled=enabled)
 
 
-def delay(ms, feedback, level):
+def tremolo(rate=5.0, depth=0.5, harmonic=0.0, shape=0.0, enabled=True):
+    """TooB Tremolo (stereo). rate 0.25-10 Hz, depth/harmonic/shape 0-1.
+    No bypass port, so on/off is isEnabled alone."""
+    return item("toob-tremolo", {
+        "rate": rate, "depth": depth, "harmonic": harmonic, "shape": shape,
+        "control": 0, "notify": 0,
+    }, enabled=enabled)
+
+
+def delay(ms, feedback, level, enabled=True):
     return item("toob-delay",
-                {"delay": ms, "feedback": feedback, "level": level})
+                {"delay": ms, "feedback": feedback, "level": level},
+                enabled=enabled)
 
 
 def multi_echo():
